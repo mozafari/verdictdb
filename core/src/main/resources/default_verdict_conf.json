@@ -68,6 +68,12 @@
 				"port": "10000",
 				"jdbc_class_name": "com.cloudera.hive.jdbc4.HS2Driver"
 			},
+
+			"redshift": {
+				"host": "127.0.0.1",
+				"port": "5439",
+				"jdbc_class_name": "com.amazon.redshift.jdbc41.Driver"
+			},
 		},
 	},
 }
