@@ -82,7 +82,7 @@ public abstract class Dbms {
                         (conf.ignoreUserCredentials())? "" : conf.getPassword(),
                                 conf.getDbmsClassName());
 
-        Set<String> jdbcDbmsNames = Sets.newHashSet("mysql", "impala", "hive", "hive2");
+        Set<String> jdbcDbmsNames = Sets.newHashSet("mysql", "impala", "hive", "hive2", "redshift");
 
         if (jdbcDbmsNames.contains(conf.getDbms())) {
             VerdictLogger.info(
@@ -112,6 +112,8 @@ public abstract class Dbms {
             dbms = new DbmsImpala(vc, dbName, host, port, schema, user, password, jdbcClassName);
         } else if (dbName.equals("hive") || dbName.equals("hive2")) {
             dbms = new DbmsHive(vc, dbName, host, port, schema, user, password, jdbcClassName);
+        } else if (dbName.equals("redshift")) {
+            dbms = new DbmsRedshift(vc, dbName, host, port, schema, user, password, jdbcClassName);
         } else if (dbName.equals("dummy")) {
             dbms = new DbmsDummy(vc);
         } else {

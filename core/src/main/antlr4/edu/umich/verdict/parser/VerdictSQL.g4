@@ -1334,7 +1334,6 @@ PRIMARY:                         P R I M A R Y;
 PRINT:                           P R I N T;
 PROC:                            P R O C;
 PROCEDURE:                       P R O C E D U R E;
-PUBLIC:                          P U B L I C;
 RAISERROR:                       R A I S E R R O R;
 READ:                            R E A D;
 READTEXT:                        R E A D T E X T;
