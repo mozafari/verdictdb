@@ -77,7 +77,7 @@ public class ExecutionContextTest {
     DbmsConnection dbmsConn = JdbcConnection.create(conn);
     VerdictContext verdict = new VerdictContext(dbmsConn);
     ExecutionContext exec = new ExecutionContext(verdict, 0);
-    
+
     VerdictSingleResult result = exec.sql(sql);
   }
 

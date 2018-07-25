@@ -5,7 +5,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.verdictdb.connection.DbmsConnection;
 import org.verdictdb.connection.JdbcConnection;
-import org.verdictdb.coordinator.VerdictSingleResult;
+import org.verdictdb.coordinator.VerdictSingleResultFromDbmsQueryResult;
 import org.verdictdb.exception.VerdictDBDbmsException;
 
 import java.sql.*;
@@ -129,7 +129,7 @@ public class JdbcResultSetMetaDataTestForRedshift {
     Timestamp test2 = expectedRs.getTimestamp(29);
     String testStr = expectedRs.getString(20);
     String sql = String.format("select * from %s.%s", REDSHIFT_SCHEMA, TABLE_NAME);
-    VerdictSingleResult verdictResult = new VerdictSingleResult(dbmsConn.execute(sql));
+    VerdictSingleResultFromDbmsQueryResult verdictResult = new VerdictSingleResultFromDbmsQueryResult(dbmsConn.execute(sql));
     ResultSet ourResult = new VerdictResultSet(verdictResult);
     ResultSetMetaData ourMetaData = ourResult.getMetaData();
     assertEquals(29, ourMetaData.getColumnCount());
