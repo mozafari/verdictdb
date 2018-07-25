@@ -18,7 +18,7 @@ import org.junit.Test;
 import org.verdictdb.connection.DbmsConnection;
 import org.verdictdb.connection.DbmsQueryResult;
 import org.verdictdb.connection.JdbcConnection;
-import org.verdictdb.coordinator.VerdictSingleResult;
+import org.verdictdb.coordinator.VerdictSingleResultFromDbmsQueryResult;
 import org.verdictdb.exception.VerdictDBDbmsException;
 
 /**
@@ -117,7 +117,7 @@ public class JdbcResultSetMetaDataTestForImpala {
     ResultSetMetaData expectedMeta = expectedResult.getMetaData();
 
     DbmsQueryResult internalResult = dbmsConn.execute(sql);
-    VerdictSingleResult result = new VerdictSingleResult(internalResult);
+    VerdictSingleResultFromDbmsQueryResult result = new VerdictSingleResultFromDbmsQueryResult(internalResult);
     ResultSet ourResult = new VerdictResultSet(result);
     ResultSetMetaData ourMetaData = ourResult.getMetaData();
 
