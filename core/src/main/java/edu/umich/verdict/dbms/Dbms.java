@@ -106,16 +106,16 @@ public abstract class Dbms {
         if (jdbcDbmsNames.contains(conf.getDbms())) {
             VerdictLogger.info((conf.getDbmsSchema() != null)
                     ? String.format("Connected to database: %s://%s:%s/%s", conf.getDbms(), conf.getHost(),
-                    conf.getPort(), conf.getDbmsSchema())
+                            conf.getPort(), conf.getDbmsSchema())
                     : String.format("Connected to database: %s://%s:%s", conf.getDbms(), conf.getHost(),
-                    conf.getPort()));
+                            conf.getPort()));
         }
 
         return dbms;
     }
 
     protected static Dbms getInstance(VerdictContext vc, String dbName, String host, String port, String schema,
-                                      String user, String password, String jdbcClassName) throws VerdictException {
+            String user, String password, String jdbcClassName) throws VerdictException {
 
         Dbms dbms = null;
 
@@ -194,8 +194,9 @@ public abstract class Dbms {
     }
 
     /**
+     *
      * @param tableName
-     * @param check     When set to true, issues "drop" statement only when the cached metadata contains the table.
+     * @param check When set to true, issues "drop" statement only when the cached metadata contains the table.
      * @throws VerdictException
      */
     public void dropTable(TableUniqueName tableName, boolean check) throws VerdictException {
@@ -273,7 +274,7 @@ public abstract class Dbms {
     public abstract long getTableSize(TableUniqueName tableName) throws VerdictException;
 
     public void createMetaTablesInDMBS(TableUniqueName originalTableName, TableUniqueName sizeTableName,
-                                       TableUniqueName nameTableName) throws VerdictException {
+            TableUniqueName nameTableName) throws VerdictException {
         VerdictLogger.debug(this, "Creates meta tables if not exist.");
         String sql = String.format("CREATE TABLE IF NOT EXISTS %s", sizeTableName) + " (schemaname STRING, "
                 + " tablename STRING, " + " samplesize BIGINT, " + " originaltablesize BIGINT)";
@@ -351,8 +352,8 @@ public abstract class Dbms {
 
     public Pair<Long, Long> createStratifiedSampleTableOf(SampleParam param) throws VerdictException {
         SampleSizeInfo info = vc.getMeta()
-                .getSampleSizeOf(
-                        new SampleParam(vc, param.getOriginalTable(), "uniform", null, new ArrayList<String>()));
+                                .getSampleSizeOf(
+                                 new SampleParam(vc, param.getOriginalTable(), "uniform", null, new ArrayList<String>()));
         if (info == null) {
             String msg = "A uniform sample is not available. It must be created before creating a stratified sample.";
             VerdictLogger.info(this, msg);
@@ -386,7 +387,7 @@ public abstract class Dbms {
     final protected String NULL_STRING = "VERDICT_NULL";
 
     final protected String NULL_TIMESTAMP = "1970-01-02"; // unix timestamp starts on '1970-01-01'. We add one day just
-    // to avoid possible conlicts.
+                                                          // to avoid possible conlicts.
 
     protected void createStratifiedSampleFromGroupSizeTemp(SampleParam param, TableUniqueName groupSizeTemp)
             throws VerdictException {
@@ -534,6 +535,7 @@ public abstract class Dbms {
     }
 
     /**
+     *
      * @param param
      * @param temp
      * @return The sample size
@@ -547,8 +549,8 @@ public abstract class Dbms {
         long sample_size = vc.getMeta().getTableSize(temp);
 
         ExactRelation withProb = sampled
-                .select(String.format("*, %d / %d AS %s", sample_size, total_size, samplingProbCol) + ", "
-                        + universePartitionColumn(param.getColumnNames()));
+                                 .select(String.format("*, %d / %d AS %s", sample_size, total_size, samplingProbCol) + ", "
+                                         + universePartitionColumn(param.getColumnNames()));
 
         String parquetString = "";
         if (vc.getConf().areSamplesStoredAsParquet()) {
@@ -603,7 +605,7 @@ public abstract class Dbms {
     }
 
     public void updateSampleSizeEntryIntoDBMS(SampleParam param, long sampleSize, long originalTableSize,
-                                              TableUniqueName metaSizeTableName) throws VerdictException {
+            TableUniqueName metaSizeTableName) throws VerdictException {
         TableUniqueName tempTableName = createTempTableExlucdingSizeEntry(param, metaSizeTableName);
         insertSampleSizeEntryIntoDBMS(param, sampleSize, originalTableSize, tempTableName);
         moveTable(tempTableName, metaSizeTableName);
@@ -622,7 +624,7 @@ public abstract class Dbms {
     }
 
     protected void insertSampleSizeEntryIntoDBMS(SampleParam param, long sampleSize, long originalTableSize,
-                                                 TableUniqueName metaSizeTableName) throws VerdictException {
+            TableUniqueName metaSizeTableName) throws VerdictException {
         TableUniqueName sampleTableName = param.sampleTableName();
         List<Object> values = new ArrayList<Object>();
         values.add(sampleTableName.getSchemaName());
