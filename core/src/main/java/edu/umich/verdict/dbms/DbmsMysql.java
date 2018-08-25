@@ -62,7 +62,7 @@ public class DbmsMysql extends DbmsJDBC {
         String concatStr = "";
         for (int i = 0; i < columns.size(); ++i) {
             String col = columns.get(i);
-            String castStr = String.format("cast(%s%s%s as string)", getQuoteString(), col, getQuoteString());
+            String castStr = String.format("cast(%s%s%s as char)", getQuoteString(), col, getQuoteString());
             if (i < columns.size() - 1) {
                 castStr += ",";
             }
