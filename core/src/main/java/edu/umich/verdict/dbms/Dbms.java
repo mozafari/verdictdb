@@ -118,8 +118,7 @@ public abstract class Dbms {
             String user, String password, String jdbcClassName) throws VerdictException {
 
         Dbms dbms = null;
-//        if (dbName.equals("mysql")) {
-//            dbms = new DbmsMySQL(vc, dbName, host, port, schema, user, password, jdbcClassName);
+
         if (dbName.equals("impala")) {
             dbms = new DbmsImpala(vc, dbName, host, port, schema, user, password, jdbcClassName);
         } else if (dbName.equals("hive") || dbName.equals("hive2")) {
@@ -128,6 +127,8 @@ public abstract class Dbms {
             dbms = new DbmsRedshift(vc, dbName, host, port, schema, user, password, jdbcClassName);
         } else if (dbName.equals("dummy")) {
             dbms = new DbmsDummy(vc);
+        } else if (dbName.equals("mysql")) {
+            dbms = new DbmsMysql(vc, dbName, host, port, schema, user, password, jdbcClassName);
         } else {
             String msg = String.format("Unsupported DBMS: %s", dbName);
             VerdictLogger.error("Dbms", msg);
