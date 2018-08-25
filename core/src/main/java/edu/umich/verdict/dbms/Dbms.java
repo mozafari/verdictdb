@@ -118,8 +118,7 @@ public abstract class Dbms {
                                       String user, String password, String jdbcClassName) throws VerdictException {
 
         Dbms dbms = null;
-//        if (dbName.equals("mysql")) {
-//            dbms = new DbmsMySQL(vc, dbName, host, port, schema, user, password, jdbcClassName);
+
         if (dbName.equals("impala")) {
             dbms = new DbmsImpala(vc, dbName, host, port, schema, user, password, jdbcClassName);
         } else if (dbName.equals("hive") || dbName.equals("hive2")) {
