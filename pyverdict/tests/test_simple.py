@@ -15,7 +15,10 @@ def test_count():
     # print(mysql_jar)
     conn_verdict = verdict_connect('localhost', 3306, 'root', '', mysql_jar)
     result = conn_verdict.sql('SELECT COUNT(1) from pyverdict_simple_test.test')
-    assert result.fetch_one() == 1
+
+    assert result.fetchone()[0] == 1
+    assert result.fetchone() == None
+
     cur.execute('DROP SCHEMA IF EXISTS pyverdict_simple_test')
     cur.close()
     conn_mysql.close()
