@@ -29,7 +29,7 @@ def test_numerical_values():
         (bitCol, tinyintCol, boolCol, smallintCol, mediumintCol, intCol, integerCol, bigintCol, decimalCol,\
         decCol, floatCol, doubleCol, doubleprecisionCol) \
         VALUES (0, 127, 0, 32767, 8388607, 2147483647, 2147483647, 2147483648,\
-                0.111, 0.222, 0.33333, 0.444444444, 0.555555555)')
+                0.111, 0.222, 0.333, 0.444, 0.555)')
 
     # set up connection through java wrapper
     thispath = os.path.dirname(os.path.realpath(__file__))
