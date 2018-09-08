@@ -24,6 +24,12 @@ def test_numerical_values():
                 8.1, 8.2, 8.3, 8.4, 8.5)')
     # insert empty values
     cur.execute('INSERT INTO pyverdict_return_types_test.test VALUES ()')
+    # insert max values
+    cur.execute('INSERT INTO pyverdict_return_types_test.test \
+        (bitCol, tinyintCol, boolCol, smallintCol, mediumintCol, intCol, integerCol, bigintCol, decimalCol,\
+        decCol, floatCol, doubleCol, doubleprecisionCol) \
+        VALUES (0, 127, 0, 32767, 8388607, 2147483647, 2147483647, 2147483648,\
+                0.111, 0.222, 0.33333, 0.444444444, 0.555555555)')
 
     # set up connection through java wrapper
     thispath = os.path.dirname(os.path.realpath(__file__))
@@ -35,8 +41,7 @@ def test_numerical_values():
 
     # get first row
     row = result.fetchone()
-    #print(row)
-    assert result.rowcount == 2
+    assert result.rowcount == 3
     assert row[0] == 1
     assert row[1] == 2
     assert row[2] == True
@@ -54,6 +59,21 @@ def test_numerical_values():
     row = result.fetchone()
     for i in range(len(row)):
         assert row[i] == None
+
+    row = result.fetchone()
+    assert row[0] == 0
+    assert row[1] == 127
+    assert row[2] == False
+    assert row[3] == 32767
+    assert row[4] == 8388607
+    assert row[5] == 2147483647
+    assert row[6] == 2147483647
+    assert row[7] == 2147483648
+    assert row[8] == Decimal('0.11')
+    assert row[9] == Decimal('0.22')
+    assert row[10] == 0.33
+    assert row[11] == 0.44
+    assert row[12] == 0.56
 
     row = result.fetchone()
     assert row == None
