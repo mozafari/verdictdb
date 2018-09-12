@@ -2,33 +2,47 @@ import setuptools
 import os
 import re
 import subprocess
+from build_lib import build_and_copy
 
-def read_version(pom):
-    """ read version info from pom.xml file
-    require the version of verdictdb to be at the top of pom.xml
-    """
-    with open(pom) as f:
-        context = f.read()
-        version = re.search('<version>(.*?)</version>', context).group(1)
-        return version
+
+def get_verdict_jar(lib_dir):
+    lib_files = os.listdir(lib_dir)
+    print(lib_files)
+
+    def get_version(libfile):
+        reobj = re.search('verdictdb-core-(.*?)-jar-with-dependencies.jar', libfile)
+        if reobj is None:
+            return (None, None)
+        else:
+            version = reobj.group(1)
+            return (libfile, version)
+
+    for libfile in lib_files:
+        (libfile, version) = get_version(libfile)
+        if version is not None:
+            return (libfile, version)
+    return (None, None)
+
 
 root_dir = os.path.dirname(os.path.abspath(__file__))
 lib_dir = os.path.join(root_dir, 'pyverdict', 'lib')
+
+# if the directory does not exist, we create the directory, build a jar file, and copy the jar file
+# to the lib directory.
 if not os.path.exists(lib_dir):
-    os.makedirs(lib_dir)
-pom_path = os.path.join(root_dir, '..', 'pom.xml')
-version = read_version(pom_path)
-jar_name = 'verdictdb-core-' + version + '-jar-with-dependencies.jar'
+    build_and_copy(root_dir, lib_dir)
 
-os.chdir('..')
-subprocess.check_call(['mvn','-DskipTests','-DtestPhase=false','-DpackagePhase=true','clean','package'])
-subprocess.check_call(['rm', '-rf', os.path.join(lib_dir, '*verdictdb*.jar')])
-subprocess.check_call(['cp', os.path.join('target', jar_name), lib_dir])
-os.chdir(root_dir)
+(verdict_jar_file, version) = get_verdict_jar(lib_dir)
+if version is None:
+    build_and_copy(root_dir, lib_dir)
+    (verdict_jar_file, version) = get_verdict_jar(lib_dir)
 
-setuptools.setup(name='pyverdict',
+# print('PyVerdict version: ' + version)
+
+setuptools.setup(
+    name='pyverdict',
     version=version,
-    description='Python connector for VerdictDB',
+    description='Python interface for VerdictDB',
     url='http://verdictdb.org',
     author='Barzan Mozafari, Yongjoo Park',
     author_email='mozafari@umich.edu, pyongjoo@umich.edu',
@@ -38,7 +52,6 @@ setuptools.setup(name='pyverdict',
     include_package_data=True,
     install_requires=[
         'py4j >= 0.10.7',
-        'PyMySQL >= 0.9.2',
-        'pytest >= 3.5'
+        'numpy >= 1.9'
     ]
  )

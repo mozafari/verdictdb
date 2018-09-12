@@ -43,6 +43,10 @@ public class ConcurrentJdbcConnection extends DbmsConnection {
 
   private int nextConnectionIndex = 0;
 
+  private String url;
+
+  private Properties info;
+
   private VerdictDBLogger logger = VerdictDBLogger.getLogger(getClass());
 
   public ConcurrentJdbcConnection(List<JdbcConnection> connections) {
@@ -53,6 +57,8 @@ public class ConcurrentJdbcConnection extends DbmsConnection {
       throws VerdictDBDbmsException {
     logger.debug(
         String.format("Creating %d JDBC connections with this url: " + url, CONNECTION_POOL_SIZE));
+    this.url = url;
+    this.info = info;
     for (int i = 0; i < CONNECTION_POOL_SIZE; i++) {
       try {
         Connection c;
@@ -149,6 +155,28 @@ public class ConcurrentJdbcConnection extends DbmsConnection {
 
   @Override
   public DbmsConnection copy() {
-    return new ConcurrentJdbcConnection(connections);
+    ConcurrentJdbcConnection copy = new ConcurrentJdbcConnection(connections);
+    copy.url = url;
+    copy.info = info;
+    return copy;
+  }
+
+  public void reinitiateConnection() throws VerdictDBDbmsException {
+    for (JdbcConnection connection:connections) {
+      try {
+        // Timeout 1s
+        if (!connection.getConnection().isValid(1)) {
+          Connection c;
+          if (info != null) {
+            c = DriverManager.getConnection(url, info);
+          } else {
+            c = DriverManager.getConnection(url);
+          }
+          connections.set(connections.indexOf(connection), JdbcConnection.create(c));
+        }
+      } catch (SQLException e) {
+        logger.info("Failed to reinitiate connection");
+      }
+    }
   }
 }

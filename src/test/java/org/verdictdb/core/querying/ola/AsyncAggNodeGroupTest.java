@@ -35,7 +35,7 @@ public class AsyncAggNodeGroupTest {
     meta.addScrambleMeta(tablemeta);
     
     // compose a query
-    String sql = "select sum(price) as s from newSchema.scrambledTable as t";
+    String sql = "select sum(t.price) as s from newSchema.scrambledTable as t";
     NonValidatingSQLParser parser = new NonValidatingSQLParser();
     SelectQuery query = (SelectQuery) parser.toRelation(sql);
     

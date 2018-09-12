@@ -35,6 +35,10 @@ public class CachedDbmsConnection extends DbmsConnection implements MetaDataProv
 
   DbmsConnection originalConn;
 
+  public DbmsConnection getOriginalConn() {
+    return originalConn;
+  }
+
   public CachedDbmsConnection(DbmsConnection conn) {
 //    super(conn);
     this.originalConn = conn;

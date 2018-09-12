@@ -1,6 +1,7 @@
 package org.verdictdb;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -143,6 +144,8 @@ public class VariantMySqlTpchQueryWithoutScramblesTest {
     }
   }
 
+
+  // count distinct
   @Test
   public void Query4Test() throws VerdictDBException, SQLException, IOException {
     Pair<VerdictSingleResult, ResultSet> answerPair = getAnswer(4);
@@ -261,6 +264,7 @@ public class VariantMySqlTpchQueryWithoutScramblesTest {
     }
   }
 
+  // count distinct
   @Test
   public void Query13Test() throws VerdictDBException, SQLException, IOException {
     Pair<VerdictSingleResult, ResultSet> answerPair = getAnswer(13);
@@ -275,13 +279,13 @@ public class VariantMySqlTpchQueryWithoutScramblesTest {
 
   @Test
   public void Query14Test() throws VerdictDBException, SQLException, IOException {
-    Pair<VerdictSingleResult, ResultSet> answerPair = getAnswer(14);
+    Pair<VerdictSingleResult, ResultSet> answerPair = getAnswer(4);
     ResultSet rs = answerPair.getRight();
     VerdictSingleResult result = answerPair.getLeft();
     while (rs.next()) {
       result.next();
-      assertEquals(rs.getInt(1), result.getInt(0));
-      assertEquals(rs.getDouble(2), result.getDouble(1), 1e-5);
+      assertEquals(rs.getLong(1), result.getLong(0));
+      assertEquals(rs.getString(2), result.getString(1));
     }
   }
 
@@ -300,6 +304,7 @@ public class VariantMySqlTpchQueryWithoutScramblesTest {
     }
   }
 
+  // count distinct
   @Test
   public void Query16Test() throws VerdictDBException, SQLException, IOException {
     Pair<VerdictSingleResult, ResultSet> answerPair = getAnswer(16);

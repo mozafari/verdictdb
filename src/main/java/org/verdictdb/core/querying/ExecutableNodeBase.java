@@ -48,10 +48,19 @@ public class ExecutableNodeBase implements ExecutableNode, Serializable {
 
   private static final long serialVersionUID = 1424215482199124961L;
 
+  /**
+   *  parent; the tokens are broadcasted to these nodes
+   */
   List<ExecutableNodeBase> subscribers = new ArrayList<>();
 
+  /**
+   *  pairs of a source and the channel; see below for channel
+   */
   List<Pair<ExecutableNodeBase, Integer>> sources = new ArrayList<>();
 
+  /**
+   *  pairs of channel ID and the queue for containing broadcasted tokens.
+   */
   Map<Integer, ExecutionTokenQueue> channels = new TreeMap<>();
 
   protected AggMeta aggMeta = new AggMeta();
@@ -133,15 +142,19 @@ public class ExecutableNodeBase implements ExecutableNode, Serializable {
    * Removes node from the subscription list (i.e., sources).
    *
    * @param node
+   * @return The channel via which the removed node was previously subscribed.
    */
-  public void cancelSubscriptionTo(ExecutableNodeBase node) {
+  public int cancelSubscriptionTo(ExecutableNodeBase node) {
     List<Pair<ExecutableNodeBase, Integer>> newSources = new ArrayList<>();
     Set<Integer> leftChannels = new HashSet<>();
+    int originalChannel = -1;
     for (Pair<ExecutableNodeBase, Integer> s : sources) {
       if (!s.getLeft().equals(node)) {
         newSources.add(s);
         leftChannels.add(s.getRight());
         continue;
+      } else {
+        originalChannel = s.getRight();
       }
     }
     sources = newSources;
@@ -159,6 +172,8 @@ public class ExecutableNodeBase implements ExecutableNode, Serializable {
 
     // inform the node
     node.removeSubscriber(this);
+    
+    return originalChannel;
   }
 
   private void removeSubscriber(ExecutableNodeBase node) {
@@ -196,6 +211,39 @@ public class ExecutableNodeBase implements ExecutableNode, Serializable {
   @Override
   public Map<Integer, ExecutionTokenQueue> getSourceQueues() {
     return channels;
+  }
+  
+//  public void replaceSubscriber(
+//      ExecutableNodeBase oldSubscriber, 
+//      ExecutableNodeBase newSubscriber) {
+//    List<ExecutableNodeBase> newSubscribers = new ArrayList<>();
+//    for (ExecutableNodeBase n : subscribers) {
+//      if (n.equals(oldSubscriber)) {
+//        newSubscribers.add(newSubscriber);
+//      } else {
+//        newSubscribers.add(n);
+//      }
+//    }
+//    subscribers = newSubscribers;
+//  }
+  
+  public void replaceSource(ExecutableNodeBase oldSource, ExecutableNodeBase newSource) {
+    int subscribedChannel = cancelSubscriptionTo(oldSource);
+    if (subscribedChannel > 0) {
+      // positive channel indicates the old source existed in the source list
+      subscribeTo(newSource, subscribedChannel);
+    }
+//    List<Pair<ExecutableNodeBase, Integer>> newSources = new ArrayList<>();
+//    for (Pair<ExecutableNodeBase, Integer> sourceChannel : sources) {
+//      ExecutableNodeBase source = sourceChannel.getLeft();
+//      Integer channel = sourceChannel.getRight();
+//      if (source.equals(oldSource)) {
+//        newSources.add(Pair.of(newSource, channel));
+//      } else {
+//        newSources.add(sourceChannel);
+//      }
+//    }
+//    sources = newSources;
   }
 
   @Override
@@ -246,6 +294,10 @@ public class ExecutableNodeBase implements ExecutableNode, Serializable {
     }
 
     return ss;
+  }
+  
+  public int getSourceCount() {
+    return getSources().size();
   }
 
   public Integer getChannelForSource(ExecutableNodeBase node) {

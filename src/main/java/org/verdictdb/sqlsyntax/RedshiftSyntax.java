@@ -197,9 +197,14 @@ public class RedshiftSyntax extends SqlSyntax {
   public String randFunction() {
     return "random()";
   }
-  
+
   @Override
   public String getGenericStringDataTypeName() {
     return "VARCHAR(MAX)";
+  }
+
+  @Override
+  public String getApproximateCountDistinct(String column) {
+    return String.format("approximate count(distinct %s)", column);
   }
 }

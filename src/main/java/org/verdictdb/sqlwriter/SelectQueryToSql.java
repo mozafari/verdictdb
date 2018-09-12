@@ -40,6 +40,7 @@ import org.verdictdb.exception.VerdictDBTypeException;
 import org.verdictdb.exception.VerdictDBValueException;
 import org.verdictdb.sqlsyntax.MysqlSyntax;
 import org.verdictdb.sqlsyntax.PostgresqlSyntax;
+import org.verdictdb.sqlsyntax.RedshiftSyntax;
 import org.verdictdb.sqlsyntax.SqlSyntax;
 
 import com.google.common.base.Optional;
@@ -282,6 +283,8 @@ public class SelectQueryToSql {
         return withParentheses(columns.get(0)) + " not in (" + temp + ")";
       } else if (columnOp.getOpType().equals("countdistinct")) {
         return "count(distinct " + withParentheses(columnOp.getOperand()) + ")";
+      } else if (columnOp.getOpType().equals("approx_countdistinct")) {
+        return syntax.getApproximateCountDistinct(withParentheses(columnOp.getOperand()));
       } else if (columnOp.getOpType().equals("substr")) {
         if (columnOp.getOperands().size() == 3) {
           return "substr("

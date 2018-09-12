@@ -18,27 +18,20 @@ package org.verdictdb.coordinator;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.verdictdb.commons.DataTypeConverter;
 import org.verdictdb.commons.VerdictDBLogger;
 import org.verdictdb.commons.VerdictOption;
-import org.verdictdb.connection.DataTypeConverter;
 import org.verdictdb.connection.DbmsConnection;
 import org.verdictdb.connection.MetaDataProvider;
 import org.verdictdb.connection.StaticMetaData;
 import org.verdictdb.core.execplan.ExecutablePlanRunner;
 import org.verdictdb.core.querying.QueryExecutionPlan;
 import org.verdictdb.core.querying.QueryExecutionPlanFactory;
-import org.verdictdb.core.querying.QueryExecutionPlanSimplifier;
 import org.verdictdb.core.querying.ola.AsyncQueryExecutionPlan;
+import org.verdictdb.core.querying.simplifier.QueryExecutionPlanSimplifier;
 import org.verdictdb.core.resulthandler.ExecutionResultReader;
 import org.verdictdb.core.scrambling.ScrambleMetaSet;
-import org.verdictdb.core.sqlobject.AbstractRelation;
-import org.verdictdb.core.sqlobject.BaseTable;
-import org.verdictdb.core.sqlobject.ColumnOp;
-import org.verdictdb.core.sqlobject.CreateSchemaQuery;
-import org.verdictdb.core.sqlobject.JoinTable;
-import org.verdictdb.core.sqlobject.SelectQuery;
-import org.verdictdb.core.sqlobject.SubqueryColumn;
-import org.verdictdb.core.sqlobject.UnnamedColumn;
+import org.verdictdb.core.sqlobject.*;
 import org.verdictdb.exception.VerdictDBException;
 import org.verdictdb.sqlreader.NonValidatingSQLParser;
 import org.verdictdb.sqlreader.RelationStandardizer;
@@ -103,38 +96,7 @@ public class SelectQueryCoordinator implements Coordinator {
    * for actual applications instead.
    */
   public ExecutionResultReader process(String query) throws VerdictDBException {
-
     return process(query, null);
-
-    //    SelectQuery selectQuery = standardizeQuery(query);
-    //
-    //    // make plan
-    //    // if the plan does not include any aggregates, it will simply be a parsed structure of
-    // the
-    //    // original query.
-    //    QueryExecutionPlan plan =
-    //        QueryExecutionPlanFactory.create(scratchpadSchema, scrambleMetaSet, selectQuery);
-    //
-    //    // convert it to an asynchronous plan
-    //    // if the plan does not include any aggregates, this operation should not alter the
-    // original
-    //    // plan.
-    //    QueryExecutionPlan asyncPlan = AsyncQueryExecutionPlan.create(plan);
-    //
-    //    // simplify the plan
-    //    //    QueryExecutionPlan simplifiedAsyncPlan =
-    // QueryExecutionPlanSimplifier.simplify(asyncPlan);
-    //    QueryExecutionPlanSimplifier.simplify2(asyncPlan);
-    //
-    //    //    asyncPlan.getRootNode().print();
-    //
-    //    // execute the plan
-    //    planRunner = new ExecutablePlanRunner(conn, asyncPlan);
-    //    ExecutionResultReader reader = planRunner.getResultReader();
-    //
-    //    lastQuery = selectQuery;
-    //
-    //    return reader;
   }
 
   public ExecutionResultReader process(String query, QueryContext context)
@@ -152,6 +114,10 @@ public class SelectQueryCoordinator implements Coordinator {
 
     SelectQuery selectQuery = standardizeQuery(query);
 
+    // Check the query does not have unsupported syntax, such as count distinct with other agg.
+    // Otherwise, it will throw to an exception
+    ensureQuerySupport(selectQuery);
+
     // make plan
     // if the plan does not include any aggregates, it will simply be a parsed structure of the
     // original query.
@@ -166,7 +132,6 @@ public class SelectQueryCoordinator implements Coordinator {
 
     // simplify the plan
     //    QueryExecutionPlan simplifiedAsyncPlan = QueryExecutionPlanSimplifier.simplify(asyncPlan);
-
     QueryExecutionPlanSimplifier.simplify2(asyncPlan);
     log.debug("Plan simplification done.");
     log.debug(asyncPlan.getRoot().getStructure());
@@ -184,6 +149,64 @@ public class SelectQueryCoordinator implements Coordinator {
   public void abort() {
     log.debug(String.format("Closes %s.", this.getClass().getSimpleName()));
     planRunner.abort();
+  }
+
+  /**
+   * @param query Select query
+   * @return check if the query contain the syntax that is not supported by VerdictDB
+   */
+  private void ensureQuerySupport(SelectQuery query) throws VerdictDBException {
+    // current, only if count distinct appear along with other aggregation function will return false
+
+    // check select list
+    boolean containAggregatedItem = false;
+    boolean containCountDistinctItem = false;
+    for (SelectItem selectItem:query.getSelectList()) {
+      if (selectItem instanceof AliasedColumn &&
+          ((AliasedColumn) selectItem).getColumn() instanceof ColumnOp) {
+        if (((ColumnOp) ((AliasedColumn) selectItem).getColumn()).doesColumnOpContainOpType("countdistinct")) {
+          ((ColumnOp) ((AliasedColumn) selectItem).getColumn()).replaceAllColumnOpOpType("countdistinct", "approx_countdistinct");
+          containCountDistinctItem = true;
+        }
+        if (!containAggregatedItem &&
+            (((AliasedColumn) selectItem).getColumn()).isAggregateColumn()) {
+          containAggregatedItem = true;
+        }
+        if (containAggregatedItem && containCountDistinctItem) {
+          throw new VerdictDBException("Count distinct and other aggregate functions cannot appear in the same select list.");
+        }
+      }
+    }
+    // check from list
+    for (AbstractRelation table:query.getFromList()) {
+      if (table instanceof SelectQuery) {
+        ensureQuerySupport((SelectQuery) table);
+      }
+      else if (table instanceof JoinTable) {
+        for (AbstractRelation jointable:((JoinTable) table).getJoinList()) {
+          if (jointable instanceof SelectQuery) {
+            ensureQuerySupport((SelectQuery) jointable);
+          }
+        }
+      }
+    }
+
+    // also need to check having since we will convert having clause into select list
+    if (query.getHaving().isPresent()) {
+      UnnamedColumn having = query.getHaving().get();
+      if (having instanceof ColumnOp &&
+          ((ColumnOp)having).doesColumnOpContainOpType("countdistinct")) {
+        containCountDistinctItem = true;
+        ((ColumnOp) having).replaceAllColumnOpOpType("countdistnct", "approx_countdistinct");
+      }
+      if (having instanceof ColumnOp &&
+          having.isAggregateColumn()) {
+        containAggregatedItem = true;
+      }
+      if (containAggregatedItem && containCountDistinctItem) {
+        throw new VerdictDBException("Count distinct and other aggregate functions cannot appear in the same select list.");
+      }
+    }
   }
 
   private SelectQuery standardizeQuery(String query) throws VerdictDBException {

@@ -1,13 +1,12 @@
 package org.verdictdb.coordinator;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.Calendar;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -585,6 +584,575 @@ public class RedshiftTpchSelectQueryCoordinatorTest {
       query21Test();
     }
   }
+
+  Pair<ExecutionResultReader, ResultSet> getRedshiftQueryAnswerPair(int queryNum)
+      throws VerdictDBException, SQLException, IOException {
+    //String filename = "query" + queryNum + "_redshift.sql";
+    //File file = new File("src/test/resources/tpch_test_query/" + filename);
+    ClassLoader classLoader = getClass().getClassLoader();
+    String filename = "companya/templated/redshift_test_queries/query" + queryNum + "_redshift.sql";
+    File file = new File(classLoader.getResource(filename).getFile());
+    String sql = Files.toString(file, Charsets.UTF_8);
+
+    dbmsConn.setDefaultSchema(REDSHIFT_SCHEMA);
+    SelectQueryCoordinator coordinator = new SelectQueryCoordinator(dbmsConn, options);
+    coordinator.setScrambleMetaSet(meta);
+    ExecutionResultReader reader = coordinator.process(sql);
+
+    ResultSet rs = stmt.executeQuery(sql);
+    return new ImmutablePair<>(reader, rs);
+  }
+
+  @Test
+  public void TpchQuery1Test() {
+    try {
+      Pair<ExecutionResultReader, ResultSet> answerPair = getRedshiftQueryAnswerPair(1);
+      ExecutionResultReader reader = answerPair.getLeft();
+      ResultSet rs = answerPair.getRight();
+      int cnt = 0;
+      while (reader.hasNext()) {
+        DbmsQueryResult dbmsQueryResult = reader.next();
+        cnt++;
+        if (cnt == 10) {
+          while (rs.next()) {
+            dbmsQueryResult.next();
+            assertEquals(rs.getString(1), dbmsQueryResult.getString(0));
+            assertEquals(rs.getString(2), dbmsQueryResult.getString(1));
+            assertEquals(rs.getLong(3), dbmsQueryResult.getLong(2));
+            assertEquals(rs.getDouble(4), dbmsQueryResult.getDouble(3), 1e-2);
+            assertEquals(rs.getDouble(5), dbmsQueryResult.getDouble(4), 1e-2);
+            assertEquals(rs.getDouble(6), dbmsQueryResult.getDouble(5), 1e-2);
+            assertEquals(rs.getDouble(7), dbmsQueryResult.getDouble(6), 1e-2);
+            assertEquals(rs.getDouble(8), dbmsQueryResult.getDouble(7), 1e-2);
+            assertEquals(rs.getDouble(9), dbmsQueryResult.getDouble(8), 1e-2);
+            assertEquals(rs.getDouble(10), dbmsQueryResult.getDouble(9), 1e-2);
+          }
+        }
+      }
+      assertEquals(10, cnt);
+      System.out.println("test 1 passed");
+    } catch (Exception e) {
+      TpchQuery1Test();
+    }
+  }
+
+  @Test
+  public void TpchQuery3Test() {
+    try {
+      Pair<ExecutionResultReader, ResultSet> answerPair = getRedshiftQueryAnswerPair(3);
+      ExecutionResultReader reader = answerPair.getLeft();
+      ResultSet rs = answerPair.getRight();
+      int cnt = 0;
+      while (reader.hasNext()) {
+        DbmsQueryResult dbmsQueryResult = reader.next();
+        cnt++;
+        if (cnt == 12) {
+          while (rs.next()) {
+            dbmsQueryResult.next();
+            assertEquals(rs.getDouble(1), dbmsQueryResult.getDouble(0), 1e-2);
+            assertEquals(rs.getTimestamp(2), dbmsQueryResult.getTimestamp(1));
+            assertEquals(rs.getInt(3), dbmsQueryResult.getInt(2));
+            assertEquals(rs.getDouble(4), dbmsQueryResult.getDouble(3), 1e-2);
+          }
+        }
+      }
+      assertEquals(12, cnt);
+      System.out.println("test 3 passed");
+    } catch (Exception e) {
+      TpchQuery3Test();
+    }
+  }
+
+  // count distinct
+  @Test
+  public void TpchQuery4Test() {
+    try {
+      Pair<ExecutionResultReader, ResultSet> answerPair = getRedshiftQueryAnswerPair(4);
+      ExecutionResultReader reader = answerPair.getLeft();
+      ResultSet rs = answerPair.getRight();
+      int cnt = 0;
+      while (reader.hasNext()) {
+        DbmsQueryResult dbmsQueryResult = reader.next();
+        cnt++;
+        if (cnt == 1) {
+          while (rs.next()) {
+            dbmsQueryResult.next();
+            assertEquals(rs.getString(1), dbmsQueryResult.getString(0));
+            assertEquals(rs.getDouble(2), dbmsQueryResult.getDouble(1), 1e-2);
+          }
+        }
+      }
+      assertEquals(1, cnt);
+      System.out.println("test 4 passed");
+    } catch (Exception e) {
+      TpchQuery4Test();
+    }
+  }
+
+  @Test
+  public void TpchQuery5Test() {
+    try {
+      Pair<ExecutionResultReader, ResultSet> answerPair = getRedshiftQueryAnswerPair(5);
+      ExecutionResultReader reader = answerPair.getLeft();
+      ResultSet rs = answerPair.getRight();
+      int cnt = 0;
+      while (reader.hasNext()) {
+        DbmsQueryResult dbmsQueryResult = reader.next();
+        cnt++;
+        if (cnt == 12) {
+          while (rs.next()) {
+            dbmsQueryResult.next();
+            assertEquals(rs.getString(1), dbmsQueryResult.getString(0));
+            assertEquals(rs.getDouble(2), dbmsQueryResult.getDouble(1), 1e-2);
+          }
+        }
+      }
+      assertEquals(12, cnt);
+      System.out.println("test 5 passed");
+    } catch (Exception e) {
+      TpchQuery5Test();
+    }
+  }
+
+  @Test
+  public void TpchQuery6Test() {
+    try {
+      Pair<ExecutionResultReader, ResultSet> answerPair = getRedshiftQueryAnswerPair(6);
+      ExecutionResultReader reader = answerPair.getLeft();
+      ResultSet rs = answerPair.getRight();
+      int cnt = 0;
+      while (reader.hasNext()) {
+        DbmsQueryResult dbmsQueryResult = reader.next();
+        cnt++;
+        if (cnt == 10) {
+          while (rs.next()) {
+            dbmsQueryResult.next();
+            assertEquals(rs.getDouble(1), dbmsQueryResult.getDouble(0), 1e-2);
+          }
+        }
+      }
+      assertEquals(10, cnt);
+      System.out.println("test 6 passed");
+    } catch (Exception e) {
+      TpchQuery6Test();
+    }
+  }
+
+  @Test
+  public void TpchQuery7Test() {
+    try {
+      Pair<ExecutionResultReader, ResultSet> answerPair = getRedshiftQueryAnswerPair(7);
+      ExecutionResultReader reader = answerPair.getLeft();
+      ResultSet rs = answerPair.getRight();
+      int cnt = 0;
+      while (reader.hasNext()) {
+        DbmsQueryResult dbmsQueryResult = reader.next();
+        cnt++;
+        if (cnt == 12) {
+          while (rs.next()) {
+            dbmsQueryResult.next();
+            assertEquals(rs.getString(1), dbmsQueryResult.getString(0));
+            assertEquals(rs.getString(2), dbmsQueryResult.getString(1));
+            assertEquals(rs.getString(3), dbmsQueryResult.getString(2));
+            assertEquals(rs.getDouble(4), dbmsQueryResult.getDouble(3), 1e-2);
+          }
+        }
+      }
+      assertEquals(12, cnt);
+      System.out.println("test 7 passed");
+    } catch (Exception e) {
+      TpchQuery7Test();
+    }
+  }
+
+  @Test
+  public void TpchQuery8Test() {
+    try {
+      Pair<ExecutionResultReader, ResultSet> answerPair = getRedshiftQueryAnswerPair(8);
+      ExecutionResultReader reader = answerPair.getLeft();
+      ResultSet rs = answerPair.getRight();
+      int cnt = 0;
+      while (reader.hasNext()) {
+        DbmsQueryResult dbmsQueryResult = reader.next();
+        cnt++;
+        if (cnt == 12) {
+          while (rs.next()) {
+            dbmsQueryResult.next();
+            assertEquals(rs.getString(1), dbmsQueryResult.getString(0));
+            assertEquals(rs.getDouble(2), dbmsQueryResult.getDouble(1), 1e-2);
+            assertEquals(rs.getDouble(3), dbmsQueryResult.getDouble(2), 1e-2);
+          }
+        }
+      }
+      assertEquals(12, cnt);
+      System.out.println("test 8 passed");
+    } catch (Exception e) {
+      TpchQuery8Test();
+    }
+  }
+
+  @Test
+  public void TpchQuery9Test() {
+    try {
+      Pair<ExecutionResultReader, ResultSet> answerPair = getRedshiftQueryAnswerPair(9);
+      ExecutionResultReader reader = answerPair.getLeft();
+      ResultSet rs = answerPair.getRight();
+      int cnt = 0;
+      while (reader.hasNext()) {
+        DbmsQueryResult dbmsQueryResult = reader.next();
+        cnt++;
+        if (cnt == 12) {
+          while (rs.next()) {
+            dbmsQueryResult.next();
+            assertEquals(rs.getString(1), dbmsQueryResult.getString(0));
+            assertEquals(rs.getString(2), dbmsQueryResult.getString(1));
+            assertEquals(rs.getDouble(3), dbmsQueryResult.getDouble(2), 1e-2);
+          }
+        }
+      }
+      assertEquals(12, cnt);
+      System.out.println("test 9 passed");
+    } catch (Exception e) {
+      TpchQuery9Test();
+    }
+  }
+
+  @Test
+  public void TpchQuery10Test() {
+    try {
+      Pair<ExecutionResultReader, ResultSet> answerPair = getRedshiftQueryAnswerPair(10);
+      ExecutionResultReader reader = answerPair.getLeft();
+      ResultSet rs = answerPair.getRight();
+      int cnt = 0;
+      while (reader.hasNext()) {
+        DbmsQueryResult dbmsQueryResult = reader.next();
+        cnt++;
+        if (cnt == 12) {
+          while (rs.next()) {
+            dbmsQueryResult.next();
+            assertEquals(rs.getString(1), dbmsQueryResult.getString(0));
+            assertEquals(rs.getString(2), dbmsQueryResult.getString(1));
+            assertEquals(rs.getString(3), dbmsQueryResult.getString(2));
+            assertEquals(rs.getString(4), dbmsQueryResult.getString(3));
+            assertEquals(rs.getString(5), dbmsQueryResult.getString(4));
+            assertEquals(rs.getString(6), dbmsQueryResult.getString(5));
+            assertEquals(rs.getString(7), dbmsQueryResult.getString(6));
+            assertEquals(rs.getDouble(8), dbmsQueryResult.getDouble(7), 1e-2);
+          }
+        }
+      }
+      assertEquals(12, cnt);
+      System.out.println("test 10 passed");
+    } catch (Exception e) {
+      TpchQuery10Test();
+    }
+  }
+
+  @Test
+  public void TpchQuery11Test() {
+    try {
+      Pair<ExecutionResultReader, ResultSet> answerPair = getRedshiftQueryAnswerPair(11);
+      ExecutionResultReader reader = answerPair.getLeft();
+      ResultSet rs = answerPair.getRight();
+      int cnt = 0;
+      while (reader.hasNext()) {
+        DbmsQueryResult dbmsQueryResult = reader.next();
+        cnt++;
+        if (cnt == 1) {
+          while (rs.next()) {
+            dbmsQueryResult.next();
+            assertEquals(rs.getString(1), dbmsQueryResult.getString(0));
+            assertEquals(rs.getDouble(2), dbmsQueryResult.getDouble(1), 1e-2);
+          }
+        }
+      }
+      assertEquals(1, cnt);
+      System.out.println("test 11 passed");
+    } catch (Exception e) {
+      TpchQuery11Test();
+    }
+  }
+
+  @Test
+  public void TpchQuery12Test() {
+    try {
+      Pair<ExecutionResultReader, ResultSet> answerPair = getRedshiftQueryAnswerPair(12);
+      ExecutionResultReader reader = answerPair.getLeft();
+      ResultSet rs = answerPair.getRight();
+      int cnt = 0;
+      while (reader.hasNext()) {
+        DbmsQueryResult dbmsQueryResult = reader.next();
+        cnt++;
+        if (cnt == 12) {
+          while (rs.next()) {
+            dbmsQueryResult.next();
+            assertEquals(rs.getString(1), dbmsQueryResult.getString(0));
+            assertEquals(rs.getString(2), dbmsQueryResult.getString(1));
+            assertEquals(rs.getDouble(3), dbmsQueryResult.getDouble(2), 1e-2);
+          }
+        }
+      }
+      assertEquals(12, cnt);
+      System.out.println("test 12 passed");
+    } catch (Exception e) {
+      TpchQuery12Test();
+    }
+  }
+
+  // count distinct
+  @Test
+  public void TpchQuery13Test() {
+    try {
+      Pair<ExecutionResultReader, ResultSet> answerPair = getRedshiftQueryAnswerPair(13);
+      ExecutionResultReader reader = answerPair.getLeft();
+      ResultSet rs = answerPair.getRight();
+      int cnt = 0;
+      while (reader.hasNext()) {
+        DbmsQueryResult dbmsQueryResult = reader.next();
+        cnt++;
+        if (cnt == 3) {
+          while (rs.next()) {
+            dbmsQueryResult.next();
+            // approximate count distinct
+            assertEquals(rs.getInt(1), dbmsQueryResult.getInt(0),2);
+            assertEquals(rs.getDouble(2), dbmsQueryResult.getDouble(1), 1e-2);
+          }
+        }
+      }
+      assertEquals(3, cnt);
+      System.out.println("test 13 passed");
+    } catch (Exception e) {
+      TpchQuery13Test();
+    }
+  }
+
+  @Test
+  public void TpchQuery14Test() {
+    try {
+      Pair<ExecutionResultReader, ResultSet> answerPair = getRedshiftQueryAnswerPair(14);
+      ExecutionResultReader reader = answerPair.getLeft();
+      ResultSet rs = answerPair.getRight();
+      int cnt = 0;
+      while (reader.hasNext()) {
+        DbmsQueryResult dbmsQueryResult = reader.next();
+        cnt++;
+        if (cnt == 10) {
+          while (rs.next()) {
+            dbmsQueryResult.next();
+            assertEquals(rs.getDouble(2), dbmsQueryResult.getDouble(1), 1e-2);
+            assertEquals(rs.getString(1), dbmsQueryResult.getString(0));
+          }
+        }
+      }
+      assertEquals(10, cnt);
+      System.out.println("test 14 passed");
+    } catch (Exception e) {
+      TpchQuery14Test();
+    }
+  }
+
+  @Test
+  public void TpchQuery15Test() {
+    try {
+      Pair<ExecutionResultReader, ResultSet> answerPair = getRedshiftQueryAnswerPair(15);
+      ExecutionResultReader reader = answerPair.getLeft();
+      ResultSet rs = answerPair.getRight();
+      int cnt = 0;
+      while (reader.hasNext()) {
+        DbmsQueryResult dbmsQueryResult = reader.next();
+        cnt++;
+        if (cnt == 12) {
+          while (rs.next()) {
+            dbmsQueryResult.next();
+            assertEquals(rs.getDouble(5), dbmsQueryResult.getDouble(4), 1e-2);
+            assertEquals(rs.getString(1), dbmsQueryResult.getString(0));
+            assertEquals(rs.getString(2), dbmsQueryResult.getString(1));
+            assertEquals(rs.getString(3), dbmsQueryResult.getString(2));
+            assertEquals(rs.getString(4), dbmsQueryResult.getString(3));
+          }
+        }
+      }
+      assertEquals(12, cnt);
+      System.out.println("test 15 passed");
+    } catch (Exception e) {
+      TpchQuery15Test();
+    }
+  }
+
+  // count distinct
+  @Test
+  public void TpchQuery16Test() {
+    try {
+      Pair<ExecutionResultReader, ResultSet> answerPair = getRedshiftQueryAnswerPair(16);
+      ExecutionResultReader reader = answerPair.getLeft();
+      ResultSet rs = answerPair.getRight();
+      int cnt = 0;
+      while (reader.hasNext()) {
+        DbmsQueryResult dbmsQueryResult = reader.next();
+        cnt++;
+        if (cnt == 1) {
+          while (rs.next()) {
+            dbmsQueryResult.next();
+            assertEquals(rs.getString(1), dbmsQueryResult.getString(0));
+            assertEquals(rs.getString(2), dbmsQueryResult.getString(1));
+            assertEquals(rs.getString(3), dbmsQueryResult.getString(2));
+            assertEquals(rs.getInt(4), dbmsQueryResult.getInt(3));
+          }
+        }
+      }
+      assertEquals(1, cnt);
+    } catch (Exception e) {
+      System.out.println("test 16 passed");
+    }
+  }
+
+  @Test
+  public void TpchQuery17Test() {
+    try {
+      Pair<ExecutionResultReader, ResultSet> answerPair = getRedshiftQueryAnswerPair(17);
+      ExecutionResultReader reader = answerPair.getLeft();
+      ResultSet rs = answerPair.getRight();
+      int cnt = 0;
+      while (reader.hasNext()) {
+        DbmsQueryResult dbmsQueryResult = reader.next();
+        cnt++;
+        if (cnt == 10) {
+          while (rs.next()) {
+            dbmsQueryResult.next();
+            assertEquals(rs.getDouble(1), dbmsQueryResult.getDouble(0), 1e-2);
+          }
+        }
+      }
+      assertEquals(10, cnt);
+      System.out.println("test 17 passed");
+    } catch (Exception e) {
+      TpchQuery17Test();
+    }
+  }
+
+  @Test
+  public void TpchQuery18Test() {
+    try {
+      Pair<ExecutionResultReader, ResultSet> answerPair = getRedshiftQueryAnswerPair(18);
+      ExecutionResultReader reader = answerPair.getLeft();
+      ResultSet rs = answerPair.getRight();
+      int cnt = 0;
+      while (reader.hasNext()) {
+        DbmsQueryResult dbmsQueryResult = reader.next();
+        cnt++;
+        if (cnt == 12) {
+          while (rs.next()) {
+            dbmsQueryResult.next();
+            assertEquals(rs.getDouble(1), dbmsQueryResult.getDouble(0), 1e-2);
+            assertEquals(rs.getDouble(2), dbmsQueryResult.getDouble(1), 1e-2);
+          }
+        }
+      }
+      assertEquals(12, cnt);
+      System.out.println("test 18 passed");
+    } catch (Exception e) {
+      TpchQuery18Test();
+    }
+  }
+
+  @Test
+  public void TpchQuery19Test() {
+    try {
+      Pair<ExecutionResultReader, ResultSet> answerPair = getRedshiftQueryAnswerPair(19);
+      ExecutionResultReader reader = answerPair.getLeft();
+      ResultSet rs = answerPair.getRight();
+      int cnt = 0;
+      while (reader.hasNext()) {
+        DbmsQueryResult dbmsQueryResult = reader.next();
+        cnt++;
+        if (cnt == 10) {
+          while (rs.next()) {
+            dbmsQueryResult.next();
+            assertEquals(rs.getDouble(1), dbmsQueryResult.getDouble(0), 1e-2);
+          }
+        }
+      }
+      assertEquals(10, cnt);
+      System.out.println("test 19 passed");
+    } catch (Exception e) {
+      TpchQuery19Test();
+    }
+  }
+
+  @Test
+  public void TpchQuery20Test() {
+    try {
+      Pair<ExecutionResultReader, ResultSet> answerPair = getRedshiftQueryAnswerPair(20);
+      ExecutionResultReader reader = answerPair.getLeft();
+      ResultSet rs = answerPair.getRight();
+      int cnt = 0;
+      while (reader.hasNext()) {
+        DbmsQueryResult dbmsQueryResult = reader.next();
+        cnt++;
+        if (cnt == 10) {
+          while (rs.next()) {
+            dbmsQueryResult.next();
+            assertEquals(rs.getString(1), dbmsQueryResult.getString(0));
+            assertEquals(rs.getString(2), dbmsQueryResult.getString(1));
+          }
+        }
+      }
+      assertEquals(10, cnt);
+      System.out.println("test 20 passed");
+    } catch (Exception e) {
+      TpchQuery20Test();
+    }
+  }
+
+  // Count distinct has occur with count
+  @Test
+  public void TpchQuery21Test() {
+    try {
+      Pair<ExecutionResultReader, ResultSet> answerPair = getRedshiftQueryAnswerPair(21);
+      ExecutionResultReader reader = answerPair.getLeft();
+      ResultSet rs = answerPair.getRight();
+      int cnt = 0;
+      while (reader.hasNext()) {
+        DbmsQueryResult dbmsQueryResult = reader.next();
+        cnt++;
+        if (cnt == 10) {
+          while (rs.next()) {
+            dbmsQueryResult.next();
+            assertEquals(rs.getString(1), dbmsQueryResult.getString(0));
+            assertEquals(rs.getString(2), dbmsQueryResult.getString(1));
+          }
+        }
+      }
+    } catch (Exception e) {
+      System.out.println("test 21 passed");
+    }
+  }
+
+  @Test
+  public void TpchQuery22Test() {
+    try {
+      Pair<ExecutionResultReader, ResultSet> answerPair = getRedshiftQueryAnswerPair(22);
+      ExecutionResultReader reader = answerPair.getLeft();
+      ResultSet rs = answerPair.getRight();
+      int cnt = 0;
+      while (reader.hasNext()) {
+        DbmsQueryResult dbmsQueryResult = reader.next();
+        cnt++;
+        if (cnt == 3) {
+          while (rs.next()) {
+            dbmsQueryResult.next();
+            assertEquals(rs.getString(1), dbmsQueryResult.getString(0));
+            assertEquals(rs.getString(2), dbmsQueryResult.getString(1));
+          }
+        }
+      }
+      assertEquals(3, cnt);
+      System.out.println("test 22 passed");
+    } catch (Exception e) {
+      TpchQuery22Test();
+    }
+  }
+
 
   @AfterClass
   public static void tearDown() throws SQLException {

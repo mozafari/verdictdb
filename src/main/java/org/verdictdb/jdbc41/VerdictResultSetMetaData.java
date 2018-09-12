@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.verdictdb.VerdictSingleResult;
-import org.verdictdb.connection.DataTypeConverter;
+import org.verdictdb.commons.DataTypeConverter;
 
 public class VerdictResultSetMetaData implements ResultSetMetaData {
 

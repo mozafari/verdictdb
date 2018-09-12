@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.verdictdb.VerdictSingleResult;
-import org.verdictdb.connection.DataTypeConverter;
+import org.verdictdb.commons.DataTypeConverter;
 import org.verdictdb.connection.DbmsQueryResultMetaData;
 
 import com.google.common.base.Optional;

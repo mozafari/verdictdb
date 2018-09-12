@@ -193,4 +193,9 @@ public class MysqlSyntax extends SqlSyntax {
     }
     return true;
   }
+
+  @Override
+  public String getApproximateCountDistinct(String column) {
+    return String.format("count(distinct %s)", column);
+  }
 }

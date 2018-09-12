@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package org.verdictdb.connection;
+package org.verdictdb.commons;
 
 import static java.sql.Types.ARRAY;
 import static java.sql.Types.BIGINT;

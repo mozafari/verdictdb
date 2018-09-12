@@ -1,7 +1,7 @@
 # VerdictDB on Apache Spark
 
 
-We will build a Scala application. Note that Scala is the language Spark is written in. To build our example application, the following tools must have been installed.
+We will write a simple example program in Scala, the standard programming language for Apache Spark. To compile our example program, the following tools must be installed.
 
 1. sbt: [sbt installation guide](https://www.scala-sbt.org/1.0/docs/Setup.html)
 
@@ -26,7 +26,7 @@ Remove the `src/test` directory, which we do not need: `rm -rf src/test`.
 
 
 
-## Configure build setting
+## Configure build setting to use Spark and VerdictDB
 
 Add the following line in `build.sbt`, under the existing `import Dependencies._` line. As of the time of writing, the latest version of Apache Spark only supports Scala 2.11.
 
@@ -45,9 +45,12 @@ libraryDependencies ++= Seq(
 )
 ```
 
-## Write an Application
+This dependency declaration will let the compiler (`sbt` in our case) download relevant libraries automatically.
 
-Change `src/main/scala/example/Hello.scala` as follows:
+
+## Write an example program
+
+Edit `src/main/scala/example/Hello.scala` as follows:
 
 ```scala
 package example
@@ -70,9 +73,13 @@ object Hello extends App {
   // prepare data
   prepareData(spark, verdict)
 
-  // query
+  // run a query and print its result
   val rs = verdict.sql("select count(*) from myschema.sales")
   rs.printCsv()
+
+  // simply the following lines will be printed (the actual count value may vary)
+  // c2
+  // 950.0
 
   def prepareData(spark: SparkSession, verdict: VerdictContext): Unit = {
     // create a schema and a table
@@ -111,3 +118,5 @@ object Hello extends App {
 $ sbt package
 $ spark-submit target/scala-2.11/Hello-assembly-0.1.0-SNAPSHOT.jar
 ```
+
+This example program is available on [this public GitHub repository](https://github.com/verdictdb/verdictdb-tutorial). See the directory `verdictdb_on_spark`.

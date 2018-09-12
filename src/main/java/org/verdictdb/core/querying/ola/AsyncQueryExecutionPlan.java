@@ -16,16 +16,19 @@
 
 package org.verdictdb.core.querying.ola;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.verdictdb.core.execplan.ExecutableNode;
-import org.verdictdb.core.querying.AggExecutionNode;
-import org.verdictdb.core.querying.ExecutableNodeBase;
-import org.verdictdb.core.querying.IdCreator;
-import org.verdictdb.core.querying.ProjectionNode;
-import org.verdictdb.core.querying.QueryExecutionPlan;
-import org.verdictdb.core.querying.QueryNodeBase;
+import org.verdictdb.core.querying.*;
 import org.verdictdb.core.scrambling.ScrambleMeta;
 import org.verdictdb.core.scrambling.ScrambleMetaSet;
 import org.verdictdb.core.sqlobject.AbstractRelation;
@@ -43,14 +46,6 @@ import org.verdictdb.exception.VerdictDBException;
 import org.verdictdb.exception.VerdictDBTypeException;
 import org.verdictdb.exception.VerdictDBValueException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 /**
  * An online aggregation (or approximate aggregation) version of the given QueryExecutionPlan.
  *
@@ -61,8 +56,6 @@ public class AsyncQueryExecutionPlan extends QueryExecutionPlan {
   private static final long serialVersionUID = -1670795390245860583L;
 
   private int aggColumnIdentiferNum = 0;
-
-  //  private Map<String, Integer> aggColumnIdentifierMap = new HashMap<>();
 
   private static final String TIER_COLUMN_ALIAS_KEYWORD = "tier";
 
@@ -130,9 +123,9 @@ public class AsyncQueryExecutionPlan extends QueryExecutionPlan {
    *
    * @param scrambleMeta The metadata about the scrambled tables.
    * @param aggNodeBlock A set of the links to the nodes that will be processed in the asynchronous
-   *     manner.
+   *                     manner.
    * @return Returns The root of the multiple aggregation nodes (each of which involves different
-   *     combinations of partitions)
+   * combinations of partitions)
    * @throws VerdictDBValueException
    */
   public ExecutableNodeBase convertToProgressiveAgg(
@@ -257,10 +250,10 @@ public class AsyncQueryExecutionPlan extends QueryExecutionPlan {
    * @param scrambleMeta Information about what tables have been scrambled.
    * @param blockNodes
    * @return ExecutableNodeBase is the reference to the scrambled base table. The triple is (schema,
-   *     table, alias) of scrambled tables.
+   * table, alias) of scrambled tables.
    */
   private static List<Pair<ExecutableNodeBase, Triple<String, String, String>>>
-      identifyScrambledNodes(ScrambleMetaSet scrambleMeta, List<ExecutableNodeBase> blockNodes) {
+  identifyScrambledNodes(ScrambleMetaSet scrambleMeta, List<ExecutableNodeBase> blockNodes) {
 
     List<Pair<ExecutableNodeBase, Triple<String, String, String>>> identified = new ArrayList<>();
 
@@ -341,6 +334,7 @@ public class AsyncQueryExecutionPlan extends QueryExecutionPlan {
 
     return aggblocks;
   }
+
 
   private boolean doesContainScramble(ExecutableNodeBase node, ScrambleMetaSet scrambleMeta) {
     SelectQuery query = ((QueryNodeBase) node).getSelectQuery();
@@ -453,7 +447,7 @@ public class AsyncQueryExecutionPlan extends QueryExecutionPlan {
   private void rewriteProjectionNodeForMultiTier(
       ProjectionNode node, List<BaseTable> scrambledTables, ScrambleMetaSet scrambleMeta) {
 
-    //    List<SelectItem> selectItemList = node.getSelectQuery().getSelectList();
+//    List<SelectItem> selectItemList = node.getSelectQuery().getSelectList();
 
     for (BaseTable t : scrambledTables) {
       // Add tier column to the select list
@@ -472,48 +466,51 @@ public class AsyncQueryExecutionPlan extends QueryExecutionPlan {
       //      selectItemList.add(tierColumn);
       node.getSelectQuery().addSelectItem(tierColumn);
 
+      // ProjectionNode allow to have group by only if group by refers to all select items
+      if (!node.getSelectQuery().getGroupby().isEmpty()) {
+        node.getSelectQuery().addGroupby(((AliasedColumn) tierColumn).getColumn());
+      }
+
       // Record the tier column alias with its corresponding scramble table
       ScrambleMeta meta = scrambleMeta.getSingleMeta(t.getSchemaName(), t.getTableName());
       node.getAggMeta().getTierColumnForScramble().put(meta, tierColumnAlias);
     }
 
-    //    node.getSelectQuery().addSelectItem();
+//    node.getSelectQuery().addSelectItem();
 
-    //    List<SelectItem> selectItemList = node.getSelectQuery().getSelectList();
-    //    if (selectItemList.get(0) instanceof AsteriskColumn) {
-    //      for (BaseTable t : MultiTiertables) {
-    //        String tierColumnAlias = generateTierColumnAliasName();
-    ////            VERDICTDB_TIER_COLUMN_NAME + verdictdbTierIndentiferNum++;
-    //
-    //        // Record the tier column alias with its corresponding scramble table
-    //        ScrambleMeta meta = scrambleMeta.getSingleMeta(t.getSchemaName(), t.getTableName());
-    //        node.getAggMeta().getTierColumnForScramble().put(meta, tierColumnAlias);
-    //      }
-    //    } else {
-    //      for (BaseTable t : MultiTiertables) {
-    //        // Add tier column to the select list
-    //        String tierColumnName = scrambleMeta.getTierColumn(t.getSchemaName(),
-    // t.getTableName());
-    //        SelectItem tierColumn;
-    //        String tierColumnAlias = generateTierColumnAliasName();
-    ////        VERDICTDB_TIER_COLUMN_NAME + verdictdbTierIndentiferNum++;
-    //        if (t.getAliasName().isPresent()) {
-    //          tierColumn =
-    //              new AliasedColumn(
-    //                  new BaseColumn(t.getAliasName().get(), tierColumnName), tierColumnAlias);
-    //        } else {
-    //          tierColumn =
-    //              new AliasedColumn(new BaseColumn(t.getTableName(), tierColumnName),
-    // tierColumnAlias);
-    //        }
-    //        selectItemList.add(tierColumn);
-    //
-    //        // Record the tier column alias with its corresponding scramble table
-    //        ScrambleMeta meta = scrambleMeta.getSingleMeta(t.getSchemaName(), t.getTableName());
-    //        node.getAggMeta().getTierColumnForScramble().put(meta, tierColumnAlias);
-    //      }
-    //    }
-    //    verdictdbTierIndentiferNum = 0;
+//    List<SelectItem> selectItemList = node.getSelectQuery().getSelectList();
+//    if (selectItemList.get(0) instanceof AsteriskColumn) {
+//      for (BaseTable t : MultiTiertables) {
+//        String tierColumnAlias = generateTierColumnAliasName();
+////            VERDICTDB_TIER_COLUMN_NAME + verdictdbTierIndentiferNum++;
+//
+//        // Record the tier column alias with its corresponding scramble table
+//        ScrambleMeta meta = scrambleMeta.getSingleMeta(t.getSchemaName(), t.getTableName());
+//        node.getAggMeta().getTierColumnForScramble().put(meta, tierColumnAlias);
+//      }
+//    } else {
+//      for (BaseTable t : MultiTiertables) {
+//        // Add tier column to the select list
+//        String tierColumnName = scrambleMeta.getTierColumn(t.getSchemaName(), t.getTableName());
+//        SelectItem tierColumn;
+//        String tierColumnAlias = generateTierColumnAliasName();
+////        VERDICTDB_TIER_COLUMN_NAME + verdictdbTierIndentiferNum++;
+//        if (t.getAliasName().isPresent()) {
+//          tierColumn =
+//              new AliasedColumn(
+//                  new BaseColumn(t.getAliasName().get(), tierColumnName), tierColumnAlias);
+//        } else {
+//          tierColumn =
+//              new AliasedColumn(new BaseColumn(t.getTableName(), tierColumnName), tierColumnAlias);
+//        }
+//        selectItemList.add(tierColumn);
+//
+//        // Record the tier column alias with its corresponding scramble table
+//        ScrambleMeta meta = scrambleMeta.getSingleMeta(t.getSchemaName(), t.getTableName());
+//        node.getAggMeta().getTierColumnForScramble().put(meta, tierColumnAlias);
+//      }
+//    }
+//    verdictdbTierIndentiferNum = 0;
   }
 
   void addTierColumnsRecursively(
@@ -635,7 +632,11 @@ public class AsyncQueryExecutionPlan extends QueryExecutionPlan {
               if (col.getOpType().equals("count")) {
                 if (!meta.getAggColumnAggAliasPair()
                     .containsKey(
-                        new ImmutablePair<>("count", (UnnamedColumn) (new AsteriskColumn())))) {
+                        new ImmutablePair<>("count", (UnnamedColumn) (new AsteriskColumn())))
+                    && (col.getOperands().isEmpty()
+                      || col.getOperand() instanceof AsteriskColumn
+                      || col.getOperand() instanceof ConstantColumn
+                      || col.getOperand() instanceof BaseColumn)) {
                   ColumnOp col1 = new ColumnOp(col.getOpType());
                   newSelectlist.add(new AliasedColumn(col1, newAlias));
                   meta.getAggColumnAggAliasPair()
@@ -643,6 +644,14 @@ public class AsyncQueryExecutionPlan extends QueryExecutionPlan {
                           new ImmutablePair<>(
                               col.getOpType(), (UnnamedColumn) new AsteriskColumn()),
                           newAlias);
+                  aggColumnAlias.add(newAlias);
+                  ++aggColumnIdentiferNum;
+                } else if (col.getOperand(0) instanceof ColumnOp && !meta.getAggColumnAggAliasPair()
+                    .containsKey(new ImmutablePair<>(col.getOpType(), col.getOperand(0)))) {
+                  ColumnOp col1 = new ColumnOp(col.getOpType(), col.getOperand(0));
+                  newSelectlist.add(new AliasedColumn(col1, newAlias));
+                  meta.getAggColumnAggAliasPair()
+                      .put(new ImmutablePair<>(col.getOpType(), col1.getOperand(0)), newAlias);
                   aggColumnAlias.add(newAlias);
                   ++aggColumnIdentiferNum;
                 } else if (!newAlias.startsWith("agg")) {
@@ -776,7 +785,7 @@ public class AsyncQueryExecutionPlan extends QueryExecutionPlan {
         scrambleMetaAnditsAlias.put(singleMeta, newTierColumnAlias);
       }
     }
-    //    verdictdbTierIndentiferNum = 0;
+//    verdictdbTierIndentiferNum = 0;
 
     return scrambleMetaAnditsAlias;
   }
@@ -801,6 +810,7 @@ public class AsyncQueryExecutionPlan extends QueryExecutionPlan {
       }
     }
 
+
     // Add tier column if its placeholder table has scramble table
     List<SelectItem> selectItemList = node.getSelectQuery().getSelectList();
     for (ProjectionNode source : projectionNodesSources) {
@@ -809,7 +819,7 @@ public class AsyncQueryExecutionPlan extends QueryExecutionPlan {
 
         String oldtierAlias = entry.getValue();
         String tierColumnAlias = generateTierColumnAliasName();
-        //        VERDICTDB_TIER_COLUMN_NAME + verdictdbTierIndentiferNum++;
+//        VERDICTDB_TIER_COLUMN_NAME + verdictdbTierIndentiferNum++;
 
         // Add tier column to select list
         SelectItem selectItem;

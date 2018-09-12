@@ -41,6 +41,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.verdictdb.VerdictSingleResult;
+import org.apache.commons.lang3.time.FastDateFormat;
 
 public class VerdictResultSet implements ResultSet {
 
@@ -94,7 +95,8 @@ public class VerdictResultSet implements ResultSet {
   }
 
   @Override
-  public void close() {}
+  public void close() {
+  }
 
   @Override
   public void deleteRow() throws SQLException {
@@ -557,7 +559,13 @@ public class VerdictResultSet implements ResultSet {
 
   @Override
   public Timestamp getTimestamp(int columnIndex, Calendar cal) throws SQLException {
-    throw new SQLFeatureNotSupportedException();
+    try {
+      FastDateFormat dateFormat = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss.SSS", cal.getTimeZone());
+      return new Timestamp(dateFormat.parse(queryResult.getTimestamp(columnIndex - 1).toString()).getTime());
+    } catch (Exception e) {
+      SQLException error = new SQLException("Error parsing time stamp");
+      throw error;
+    }
   }
 
   @Override
@@ -569,7 +577,10 @@ public class VerdictResultSet implements ResultSet {
 
   @Override
   public Timestamp getTimestamp(String columnLabel, Calendar cal) throws SQLException {
-    throw new SQLFeatureNotSupportedException();
+    if (colNameIdx.containsKey(standardizedLabel(columnLabel))) {
+      int index = columnLabel.indexOf(standardizedLabel(columnLabel)) + 1;
+      return getTimestamp(index, cal);
+    } else throw new SQLException("ColumnLabel does not exist.");
   }
 
   @Override

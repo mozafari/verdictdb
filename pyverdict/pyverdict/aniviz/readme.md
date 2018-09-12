@@ -1,0 +1,1 @@
+This submodule is for animated visualization of charts/plots based on D3.js.

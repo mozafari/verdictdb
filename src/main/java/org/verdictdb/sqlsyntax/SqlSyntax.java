@@ -87,4 +87,12 @@ public abstract class SqlSyntax {
   public String getFallbackDefaultSchema() {
     throw new RuntimeException("This function must be implemented for each dbms syntax.");
   }
+
+  /**
+   * Hive, Impala, Spark, Redshift have approximate count distinct function
+   * @return
+   */
+  public String getApproximateCountDistinct(String column) {
+    return String.format("count (distinct %s)", column);
+  }
 }
