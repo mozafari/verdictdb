@@ -83,7 +83,6 @@ def setup_sandbox():
           datetimeCol         DATETIME,
           timestampCol        TIMESTAMP,
           timeCol             TIME,
-          yearCol             YEAR(2),
           yearCol2            YEAR(4),
           charCol             CHAR(4),
           varcharCol          VARCHAR(4),
@@ -106,7 +105,7 @@ def setup_sandbox():
           1, 2, 1, 1, 1, 1, 1, 1,
           1.0, 1.0, 1.0, 1.0, 1.0,
           '2018-12-31', '2018-12-31 01:00:00', '2018-12-31 00:00:01', '10:59:59',
-          18, 2018, 'abc', 'abc', '10', '10',
+          2018, 'abc', 'abc', '10', '10',
           '10', 'a', '10', 'abc', '1110', 'abc', '1110', 'abc', '1', '2'
         )""".format(test_schema, test_table)
         )
@@ -115,7 +114,7 @@ def setup_sandbox():
             NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
             NULL, NULL, NULL, NULL, NULL,
             NULL, NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL, NULL,
             NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
         )""".format(test_schema, test_table)
         )
