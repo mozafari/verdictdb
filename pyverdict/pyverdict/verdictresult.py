@@ -21,7 +21,7 @@ class SingleResultSet:
     'tinyint'                 => int,
     'bool'                    => boolean,
     'smallint'                => int,
-    'medimumInteger'          => int,
+    'mediumInteger'          => int,
     'int'                     => int,
     'integer                  => int,
     'bigint'                  => int,
@@ -34,7 +34,6 @@ class SingleResultSet:
     'datetime'  => JavaObject => datetime.datetime,
     'timestamp' => JavaObject => datetime.datetime,
     'time'      => JavaObject => datetime.timedelta,
-    'year(2)'   => JavaObject => datetime.date,
     'year(4)'   => JavaObject => datetime.date,
     'char'                    => str,
     'varchar'                 => str,
@@ -50,6 +49,18 @@ class SingleResultSet:
     'longText'                => str,
     'enumCol'                 => str,
     'setCol'                  => str
+
+    Type conversion rule (Impala):
+    'tinyint'                 => int,
+    'smallint'                => int,
+    'int'                     => int,
+    'bigint'                  => int,
+    'decimal'                 => decimal.Decimal,
+    'bool'                    => boolean,
+    'float'                   => float,
+    'double'                  => float,
+    'string'                  => str,
+    'timestamp' => JavaObject => datetime.datetime,
     """
 
     type_to_read_in_str = set(['date', 'timestamp', 'time'])
