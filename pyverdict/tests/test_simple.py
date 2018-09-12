@@ -14,10 +14,12 @@ def test_count():
     mysql_jar = os.path.join(thispath, 'lib', 'mysql-connector-java-5.1.46.jar')
     # print(mysql_jar)
     conn_verdict = verdict_connect('localhost', 3306, 'root', '', mysql_jar)
-    result = conn_verdict.sql('SELECT COUNT(1) from pyverdict_simple_test.test')
+    verdict_result = conn_verdict.sql('SELECT COUNT(1) from pyverdict_simple_test.test')
+    cur.execute('SELECT * FROM pyverdict_simple_test.test')
+    regular_result = cur
 
-    assert result.fetchone()[0] == 1
-    assert result.fetchone() == None
+    assert verdict_result.fetchone()[0] == regular_result.fetchone()[0]
+    assert verdict_result.fetchone() == regular_result.fetchone()
 
     cur.execute('DROP SCHEMA IF EXISTS pyverdict_simple_test')
     cur.close()

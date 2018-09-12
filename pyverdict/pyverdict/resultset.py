@@ -6,6 +6,7 @@ class ResultSet:
 	def __init__(self, resultset):
 		self.set = resultset
 		self.columncount = self.set.getColumnCount()
+
 		# get .description attribute of resultset
 		for i in range(self.columncount):
 			info = {}
@@ -27,8 +28,11 @@ class ResultSet:
 			for i in range(self.columncount):
 				value = self.set.getValue(i)
 				col_type = self.description[i]['type_code']
+				print("col: ", col_type, " value: ", value)
 				if value is None:
 					row.append(None)
+				elif col_type in [-7]:
+					row.append(chr(value))
 				elif col_type in [6, 7, 8]: # FLOAT/REAL/DOUBLE
 					row.append(float(value))
 				else:

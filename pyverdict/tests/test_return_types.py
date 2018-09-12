@@ -38,45 +38,32 @@ def test_numerical_values():
 
     # get table ResultSet
     result = conn_verdict.sql('SELECT * FROM pyverdict_return_types_test.test')
+    cur.execute('SELECT * FROM pyverdict_return_types_test.test')
 
     # get first row
-    row = result.fetchone()
+    verdict_row = result.fetchone()
+    regular_row = cur.fetchone()
     assert result.rowcount == 3
-    assert row[0] == 1
-    assert row[1] == 2
-    assert row[2] == True
-    assert row[3] == 4
-    assert row[4] == 5
-    assert row[5] == 6
-    assert row[6] == 7
-    assert row[7] == 8
-    assert row[8] == Decimal('8.10')
-    assert row[9] == Decimal('8.20')
-    assert row[10] == 8.3
-    assert row[11] == 8.4
-    assert row[12] == 8.5
+    for i in range(len(verdict_row)):
+        if i == 2:
+            continue
+        assert verdict_row[i] == regular_row[i]
 
-    row = result.fetchone()
-    for i in range(len(row)):
-        assert row[i] == None
+    verdict_row = result.fetchone()
+    regular_row = cur.fetchone()
+    for i in range(len(verdict_row)):
+        assert verdict_row[i] == regular_row[i]
 
-    row = result.fetchone()
-    assert row[0] == 0
-    assert row[1] == 127
-    assert row[2] == False
-    assert row[3] == 32767
-    assert row[4] == 8388607
-    assert row[5] == 2147483647
-    assert row[6] == 2147483647
-    assert row[7] == 2147483648
-    assert row[8] == Decimal('0.11')
-    assert row[9] == Decimal('0.22')
-    assert row[10] == 0.33
-    assert row[11] == 0.44
-    assert row[12] == 0.56
+    verdict_row = result.fetchone()
+    regular_row = cur.fetchone()
+    for i in range(len(verdict_row)):
+        if i == 2:
+            continue
+        assert verdict_row[i] == regular_row[i]
 
-    row = result.fetchone()
-    assert row == None
+    verdict_row = result.fetchone()
+    regular_row = cur.fetchone()
+    assert verdict_row == regular_row
 
     # tear down table and close connection
     cur.execute('DROP SCHEMA IF EXISTS pyverdict_return_types_test')
