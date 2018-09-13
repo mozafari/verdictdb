@@ -53,9 +53,8 @@ def compare_value(expected, actual):
 
 
 def setup_sandbox():
-    url = 'salat2.eecs.umich.edu'
-    port = 9050
-
+    (url, port) = os.environ['VERDICTDB_TEST_IMPALA_HOST'].split(':')
+    port = int(port)  
     # create table and populate data
     impala_conn = impala_connect(url, port)
     cur = impala_conn.cursor()
