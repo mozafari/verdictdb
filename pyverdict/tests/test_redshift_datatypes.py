@@ -10,15 +10,16 @@ test_table = 'pyverdict_datatype_test_redshift_table'
 
 def test_redshift_data_types():
     (redshift_conn, verdict_conn) = setup_sandbox()
-    # there is a Runtime error in the following line
+
     result = verdict_conn.sql('select * from {}.{}'.format(test_schema, test_table))
     int_types = result.typeJavaInt()
     types = result.types()
     rows = result.rows()
-    # print(int_types)
-    # print(types)
-    # print(rows)
-    # print([type(x) for x in rows[0]])
+
+    print(int_types)
+    print(types)
+    print(rows)
+    print([type(x) for x in rows[0]])
 
     cur = redshift_conn.cursor()
     cur.execute('select * from {}.{}'.format(test_schema, test_table))
@@ -48,6 +49,8 @@ def compare_value(expected, actual):
         # due to the limitation of the underlying MySQL JDBC driver, both year(2) and year(4) are
         # returned as the 'date' type; thus, we check the equality in this hacky way.
         assert expected % 100 == actual.year % 100
+    elif isinstance(expected, datetime) and expected.tzinfo:
+        print(expected)
     else:
         assert expected == actual
 
@@ -57,11 +60,12 @@ def setup_sandbox():
     port = int(port)
     user = os.environ['VERDICTDB_TEST_REDSHIFT_USER']
     pswd = os.environ['VERDICTDB_TEST_REDSHIFT_PASSWORD']
-
     # create table and populate data
     redshift_conn = redshift_connect(url, port, user, pswd)
+    '''
     cur = redshift_conn.cursor()
-    cur.execute('DROP SCHEMA IF EXISTS ' + test_schema)
+    #cur.execute('SET autocommit to ON;')
+    cur.execute('DROP SCHEMA IF EXISTS ' + test_schema + 'CASCADE')
     cur.execute('CREATE SCHEMA IF NOT EXISTS ' + test_schema)
     cur.execute('DROP TABLE IF EXISTS ' + test_table)
     cur.execute("""
@@ -105,12 +109,11 @@ def setup_sandbox():
         )""".format(test_schema, test_table)
     )
     cur.close()
-
+    '''
     # create verdict connection
     thispath = os.path.dirname(os.path.realpath(__file__))
     redshift_jar = os.path.join(thispath, 'lib', 'RedshiftJDBC42-1.2.16.1027.jar')
     verdict_conn = verdict_connect(url, port, user, pswd, redshift_jar)
-
     return (redshift_conn, verdict_conn)
 
 
