@@ -61,6 +61,21 @@ class SingleResultSet:
     'double'                  => float,
     'string'                  => str,
     'timestamp' => JavaObject => datetime.datetime,
+
+    Type conversion rule (RedShift):
+    'smallint'                => int,
+    'int'                     => int,
+    'bigint'                  => int,
+    'decimal'                 => decimal.Decimal,
+    'real'                    => float,
+    'double precision'        => float,
+    'bool'                    => boolean,
+    'char'                    => str,
+    'varchar'                 => str,
+    'date'       => JavaObject => datetime.date,
+    'timestamp'  => JavaObject => datetime.datetime,
+    'timestamptz'=> JavaObject => datetime.datetime
+
     """
 
     type_to_read_in_str = set(['date', 'timestamp', 'time'])
