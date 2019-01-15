@@ -1,12 +1,12 @@
 # Quickstart Guide (Python)
 
-We will download/install `pyverdict` (a Python interface to VerdictDB) and issues a simple query.
+We will install `pyverdict`, a Python interface to VerdictDB, and issue a simple query.
 In this Quickstart Guide, we will use MySQL for VerdictDB's backend database.
 
 
 ## Install
 
-`pyverdict` is distributed with PyPI. Use the following command for installation. 
+`pyverdict` is distributed with PyPI. Use the following command for installation.
 
 ```
 pip install pyverdict
@@ -27,7 +27,11 @@ Suppose MySQL is set as described on [this page](/tutorial/setup/mysql/).
 
 ```python
 import pyverdict
-verdict = pyverdict.mysql('localhost', 'root', '')
-verdict.sql('show schemas')     # this returns pandas DataFrame containing schema names
+
+connection_url = 'jdbc:mysql://localhost:3306?user=root&password='
+verdict = pyverdict.VerdictContext(connection_url)
+df = verdict.sql('show schemas')     # df is a pandas DataFrame containing schema names
 ```
 
+!!! warn "Note: Supported Databases"
+    `pyverdict` supports MySQL, PostgreSQL, Redshift, Impala and Presto currently.

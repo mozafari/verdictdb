@@ -6,11 +6,12 @@ A scramble is a special table used by VerdictDB to speed up query processing. Th
 ## Syntax for Creating Scrambles
 
 ```sql
-CREATE SCRAMBLE newSchema.newTable 
-FROM originalSchema.originalTable 
-[METHOD (uniform | hash)]
-[(ON | HASHCOLUMN) hashcolumn]
-[(SIZE | RATIO) sizeOfScramble]
+CREATE SCRAMBLE (IF NOT EXISTS)? scrambled_table=table_name FROM original_table=table_name
+(WHERE where=search_condition)?
+(METHOD method=scrambling_method_name)?
+((HASHCOLUMN | ON) hash_column=column_name)?
+((SIZE | RATIO) percent=FLOAT)?
+(BLOCKSIZE blocksize=DECIMAL)?
 ```
 
 Note:
