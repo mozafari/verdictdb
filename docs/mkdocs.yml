@@ -38,7 +38,7 @@ nav:
     - Select-Query Syntax: reference/query_syntax.md
     - Stream Querying: reference/streaming.md
     - Javadoc: reference/javadoc.md
-    - pyVerdict API Documentation: reference/pyverdict.md
+    - pyVerdict Documentation: reference/pyverdict.md
   #   - VerdictDB Queries: reference/supported_queries.md
 
 # Appearance
