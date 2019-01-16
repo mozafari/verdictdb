@@ -6,23 +6,23 @@ A scramble is a special table used by VerdictDB to speed up query processing. Th
 ## Syntax for Creating Scrambles
 
 ```sql
-CREATE SCRAMBLE (IF NOT EXISTS)? scrambled_table=table_name FROM original_table=table_name
-(WHERE where=search_condition)?
-(METHOD method=scrambling_method_name)?
-((HASHCOLUMN | ON) hash_column=column_name)?
-((SIZE | RATIO) percent=FLOAT)?
-(BLOCKSIZE blocksize=DECIMAL)?
+CREATE SCRAMBLE [IF NOT EXISTS] new_schema.scrambled_table
+FROM original_schema.original_table
+[WHERE condition]
+[METHOD {UNIFORM|HASH}]
+[{HASHCOLUMN|ON} hash_column]
+[{SIZE|RATIO} percent=FLOAT]
+[BLOCKSIZE size=DECIMAL]
 ```
 
 Note:
 
-1. `newSchema` may be identical to `originalSchema`.
-1. `newTable` must be different from `originalTable` if `newSchema` is same as `originalSchema`.
-1. The user requires the write privilege for the `newSchema` schema and the read privilege for the `originalSchema.originalTable`.
-1. METHOD must be either "uniform" or "hash". A uniform scramble is used for count, sum, avg, max, and min. A hash scramble is used for count-distinct.
-1. If a hash scramble is to be built, the `hashcolumn` must be present. `hashcolumn` indicates the column that will appear within the count-distinct function (e.g., `count(distinct hashcolumn)`).
-1. `sizeOfScramble` (default = 1.0) defines the relative size of the scramble to its original table and must be a float value between 0.0 and 1.0 (e.g., `sizeOfScramble=0.1` will create a scramble which size is 10% of the original table).
-<!-- 1. VerdictDB stores scrambles in a partitioned table and `sizeOfBlock` (default = 1,000,000 = 1M) specifies the number of records in each partition. Note that VerdictDB sets the maximum number of partitions for scrambles is 100 by default, and `sizeOfBlock` will be adjusted automatically by VerdictDB if the specified `sizeOfBlock` results in more than 100 partitions. -->
+1. `scrambled_table` must be different from `original_table` if `new_schema` is the same as `original_schema`.
+1. The user requires write privilege for `newSchema` and read privilege for `originalSchema.originalTable`.
+1. `METHOD` must be either `UNIFORM` or `HASH`. A `UNIFORM` scramble is used for `count`, `sum`, `avg`, `max` and `min` queries. A `HASH` scramble is used for `count distinct` queries. `METHOD` is `UNIFORM` by default.
+1. If a `HASH` scramble is to be built, `HASHCOLUMN` or `ON` must be present. `hash_column` indicates the column that will appear within the count-distinct function (e.g., `count(distinct hashcolumn)`).
+1. `SIZE` or `RATIO` (`percent = 1.0` by default) defines the relative size of the scramble to its original table and must be a float value between 0.0 and 1.0 (e.g., `percent = 0.1` will create a scramble with 10% size of the original table).
+1. VerdictDB stores scrambles in a partitioned table and `BLOCKSIZE` (`size = 1,000,000 = 1M` by default) specifies the number of records in each partition. The maximum number of partitions for scrambles is 100 by default in VerdictDB. If the specified `size` results in more than 100 partitions, it will be adjusted automatically.
 1. The schema and table names can be quoted either using the double-quote (") or the backtick (\`).
 
 

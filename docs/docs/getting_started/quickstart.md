@@ -1,6 +1,6 @@
 # Quickstart Guide (Java)
 
-We will install VerdictDB, create a connection, and issue a simple query to VerdictDB. In this Quickstart Guide, we will use MySQL for VerdictDB's backend database. See [How to Connect](/getting_started/connection/) for the examples of connecting to other databases.
+We will install VerdictDB, create a connection, and issue a simple query to VerdictDB. In this Quickstart Guide, we will use MySQL for VerdictDB's backend database. See [Connecting to Databases](/reference/connection/) for the examples of connecting to other databases.
 
 
 ## Install
@@ -74,7 +74,7 @@ Run just a regular query to the original table.
 ```java
 ResultSet rs = vstmt.executeQuery(
     "select product, avg(price) "+
-    "from myschema.sales_scrambled " +
+    "from myschema.sales " +
     "group by product " +
     "order by product");
 ```
