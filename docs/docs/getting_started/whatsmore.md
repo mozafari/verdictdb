@@ -10,4 +10,4 @@
 #### [Select Query Syntax](/reference/query_syntax)
 #### [Stream Querying](/reference/streaming)
 #### [Javadoc](/reference/javadoc)
-
+#### [PyVerdict Doc](/reference/pyverdict)

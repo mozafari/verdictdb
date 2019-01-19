@@ -13,8 +13,7 @@ First, users must create a *scramble* for their large table. The scramble is jus
 ## Contents
 
 1. Getting Started
-    - [Quickstart (Java)](/getting_started/quickstart)
-    - [Quickstart (Python)](getting_started/quickstart_python)
+    - [Quickstart](/getting_started/quickstart)
     - [Install / Download](/getting_started/install)
     - [What's More](/getting_started/whatsmore)
 1. How VerdictDB works
@@ -30,7 +29,7 @@ First, users must create a *scramble* for their large table. The scramble is jus
         - [MySQL](/tutorial/example/mysql)
         - [Apache Spark](/tutorial/example/spark)
 1. Reference
-    - [Connecting to Data Sources](/reference/connection)
+    - [Connecting to Databases](/reference/connection)
     - [VerdictDB JDBC Properties](/reference/properties)
     - [Creating/Viewing Scrambles](/reference/scrambling)
     - [Appending Scrambles](/reference/append_scrambling)
@@ -38,6 +37,7 @@ First, users must create a *scramble* for their large table. The scramble is jus
     - [Select-Query Syntax](/reference/query_syntax)
     - [Stream Querying](/reference/streaming)
     - [Javadoc](/reference/javadoc)
+    - [PyVerdict Doc](/reference/pyverdict)
 
 
 

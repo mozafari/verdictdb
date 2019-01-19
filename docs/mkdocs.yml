@@ -7,8 +7,7 @@ copyright: 'Copyright &copy; 2018 The University of Michigan'
 nav:
   - Home: index.md
   - Getting Started:
-    - Quickstart (Java): getting_started/quickstart.md
-    - Quickstart (Python): getting_started/quickstart_python.md
+    - Quickstart: getting_started/quickstart.md
     - Download / Install: getting_started/install.md
     - What's More: getting_started/whatsmore.md
     # - Result Structure: getting_started/results.md
@@ -38,7 +37,7 @@ nav:
     - Select-Query Syntax: reference/query_syntax.md
     - Stream Querying: reference/streaming.md
     - Javadoc: reference/javadoc.md
-    - PyVerdict Documentation: reference/pyverdict.md
+    - PyVerdict Doc: reference/pyverdict.md
   #   - VerdictDB Queries: reference/supported_queries.md
 
 # Appearance
@@ -100,3 +99,4 @@ markdown_extensions:
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.tilde
+  - pymdownx.superfences
