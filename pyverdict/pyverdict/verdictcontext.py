@@ -229,25 +229,28 @@ class VerdictContext:
         '''
         Development API
         '''
-        start_time = time()
+        try:
+            start_time = time()
 
-        java_resultset = self._context.sql(query)
-        if java_resultset is None:
-            msg = 'processed'
-            result_set = SingleResultSet.status_result(msg, self)
-        else:
-            result_set = SingleResultSet.from_java_resultset(java_resultset, self)
+            java_resultset = self._context.sql(query)
+            if java_resultset is None:
+                msg = 'processed'
+                result_set = SingleResultSet.status_result(msg, self)
+            else:
+                result_set = SingleResultSet.from_java_resultset(java_resultset, self)
 
-        elapsed_time = time() - start_time
-        if elapsed_time < 60.0:
-            elapsed_time_str = "{0:.3f} seconds".format(elapsed_time)
-        else:
-            elapsed_min = elapsed_time // 60
-            elapsed_sec = elapsed_time % 60
-            elapsed_time_str = "{0} mins {1:.3f} seconds".format(elapsed_min, elapsed_sec)
-        print("{} row(s) in the result ({})".format(len(result_set.rows()), elapsed_time_str))
+            elapsed_time = time() - start_time
+            if elapsed_time < 60.0:
+                elapsed_time_str = "{0:.3f} seconds".format(elapsed_time)
+            else:
+                elapsed_min = elapsed_time // 60
+                elapsed_sec = elapsed_time % 60
+                elapsed_time_str = "{0} mins {1:.3f} seconds".format(elapsed_min, elapsed_sec)
+            print("{} row(s) in the result ({})".format(len(result_set.rows()), elapsed_time_str))
 
-        return result_set
+            return result_set
+        except KeyboardInterrupt:
+            self._context.abort()
 
     def get_dbtype(self):
         return self._dbtype.lower()
