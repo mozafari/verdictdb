@@ -3,7 +3,7 @@ import time
 import sys
 
 filename = sys.argv[1]
-
+sz = sys.argv[2]
 verdict = pyverdict.presto('localhost', 'hive', 'jiangchen', port=9080)
 # verdict.sql('use tpch10g')
 query = """select
@@ -21,8 +21,8 @@ query = """select
                else 0
        end) as low_line_count
 from
-       tpch10g.orders_scramble,
-       tpch10g.lineitem_scramble
+       tpch{}g.orders_scramble,
+       tpch{}g.lineitem_scramble
 where
        o_orderkey = l_orderkey
        and l_shipmode in ('MAIL', 'SHIP')
@@ -33,7 +33,7 @@ where
 group by
        l_shipmode
 order by
-       l_shipmode;"""
+       l_shipmode;""".format(sz, sz)
 
 start_time = time.time()
 verdict.sql(query)
@@ -59,8 +59,8 @@ query = """bypass select
                else 0
        end) as low_line_count
 from
-       tpch10g.orders,
-       tpch10g.lineitem
+       tpch{}g.orders,
+       tpch{}g.lineitem
 where
        o_orderkey = l_orderkey
        and l_shipmode in ('MAIL', 'SHIP')
@@ -71,7 +71,7 @@ where
 group by
        l_shipmode
 order by
-       l_shipmode;"""
+       l_shipmode;""".format(sz, sz)
 
 start_time = time.time()
 verdict.sql(query)

@@ -3,7 +3,7 @@ import time
 import sys
 
 filename = sys.argv[1]
-
+sz = sys.argv[2]
 verdict = pyverdict.presto('localhost', 'hive', 'jiangchen', port=9080)
 # verdict.sql('use tpch10g')
 query = """select
@@ -14,12 +14,12 @@ query = """select
         end) as numerator,
         sum(l_extendedprice * (1 - l_discount)) as denominator
 from
-        tpch10g.lineitem_scramble,
-        tpch10g.part
+        tpch{}g.lineitem_scramble,
+        tpch{}g.part
 where
         l_partkey = p_partkey
         and l_shipdate >= date '1995-09-01'
-        and l_shipdate < date '1995-10-01';"""
+        and l_shipdate < date '1995-10-01';""".format(sz, sz)
 
 start_time = time.time()
 verdict.sql(query)
@@ -38,12 +38,12 @@ query = """bypass select
         end) as numerator,
         sum(l_extendedprice * (1 - l_discount)) as denominator
 from
-        tpch10g.lineitem,
-        tpch10g.part
+        tpch{}g.lineitem,
+        tpch{}g.part
 where
         l_partkey = p_partkey
         and l_shipdate >= date '1995-09-01'
-        and l_shipdate < date '1995-10-01';"""
+        and l_shipdate < date '1995-10-01';""".format(sz, sz)
 
 start_time = time.time()
 verdict.sql(query)

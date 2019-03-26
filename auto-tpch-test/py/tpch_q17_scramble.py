@@ -3,7 +3,7 @@ import time
 import sys
 
 filename = sys.argv[1]
-
+sz = sys.argv[2]
 verdict = pyverdict.presto('localhost', 'hive', 'jiangchen', port=9080)
 # verdict.sql('use tpch10g')
 query = """select
@@ -19,7 +19,7 @@ from
                         l_partkey as t_partkey,
                         0.2 * avg(l_quantity) as t_avg_quantity
                 from
-                        tpch10g.lineitem_scramble
+                        tpch{}g.lineitem_scramble
                 group by l_partkey) as q17_lineitem_tmp_cached
                 Inner Join
                 (select
@@ -27,15 +27,15 @@ from
                         l_partkey,
                         l_extendedprice
                 from
-                        tpch10g.part,
-                        tpch10g.lineitem_scramble
+                        tpch{}g.part,
+                        tpch{}g.lineitem_scramble
                 where
                         p_partkey = l_partkey
                         and p_brand = 'Brand#23'
                         and p_container = 'MED BOX'
                 ) as l1 on l1.l_partkey = t_partkey
         ) a
-where quantity < t_avg_quantity;"""
+where quantity < t_avg_quantity;""".format(sz, sz, sz)
 
 start_time = time.time()
 verdict.sql(query)
@@ -59,7 +59,7 @@ from
                         l_partkey as t_partkey,
                         0.2 * avg(l_quantity) as t_avg_quantity
                 from
-                        tpch10g.lineitem
+                        tpch{}g.lineitem
                 group by l_partkey) as q17_lineitem_tmp_cached
                 Inner Join
                 (select
@@ -67,15 +67,15 @@ from
                         l_partkey,
                         l_extendedprice
                 from
-                        tpch10g.part,
-                        tpch10g.lineitem
+                        tpch{}g.part,
+                        tpch{}g.lineitem
                 where
                         p_partkey = l_partkey
                         and p_brand = 'Brand#23'
                         and p_container = 'MED BOX'
                 ) as l1 on l1.l_partkey = t_partkey
         ) a
-where quantity < t_avg_quantity;"""
+where quantity < t_avg_quantity;""".format(sz, sz, sz)
 
 start_time = time.time()
 verdict.sql(query)

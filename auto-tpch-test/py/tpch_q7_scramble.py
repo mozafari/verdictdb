@@ -3,7 +3,7 @@ import time
 import sys
 
 filename = sys.argv[1]
-
+size = sys.argv[2]
 verdict = pyverdict.presto('localhost', 'hive', 'jiangchen', port=9080)
 # verdict.sql('use tpch10g')
 query = """select
@@ -19,12 +19,12 @@ from
                 extract(year from l_shipdate) as l_year,
                 l_extendedprice * (1 - l_discount) as volume
         from
-                tpch10g.supplier,
-                tpch10g.lineitem_scramble,
-                tpch10g.orders_scramble,
-                tpch10g.customer,
-                tpch10g.nation n1,
-                tpch10g.nation n2
+                tpch{}g.supplier,
+                tpch{}g.lineitem_scramble,
+                tpch{}g.orders_scramble,
+                tpch{}g.customer,
+                tpch{}g.nation n1,
+                tpch{}g.nation n2
         where
                 s_suppkey = l_suppkey
                 and o_orderkey = l_orderkey
@@ -44,7 +44,7 @@ group by
 order by
         supp_nation,
         cust_nation,
-        l_year;"""
+        l_year;""".format(size, size, size, size, size, size)
 
 
 start_time = time.time()
@@ -69,12 +69,12 @@ from
                 extract(year from l_shipdate) as l_year,
                 l_extendedprice * (1 - l_discount) as volume
         from
-                tpch10g.supplier,
-                tpch10g.lineitem,
-                tpch10g.orders,
-                tpch10g.customer,
-                tpch10g.nation n1,
-                tpch10g.nation n2
+                tpch{}g.supplier,
+                tpch{}g.lineitem,
+                tpch{}g.orders,
+                tpch{}g.customer,
+                tpch{}g.nation n1,
+                tpch{}g.nation n2
         where
                 s_suppkey = l_suppkey
                 and o_orderkey = l_orderkey
@@ -94,7 +94,7 @@ group by
 order by
         supp_nation,
         cust_nation,
-        l_year;"""
+        l_year;""".format(size, size, size, size, size, size)
 
 start_time = time.time()
 verdict.sql(query)

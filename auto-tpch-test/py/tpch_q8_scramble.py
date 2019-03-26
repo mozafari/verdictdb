@@ -3,7 +3,7 @@ import time
 import sys
 
 filename = sys.argv[1]
-
+sz = sys.argv[2]
 verdict = pyverdict.presto('localhost', 'hive', 'jiangchen', port=9080)
 # verdict.sql('use tpch10g')
 query = """select
@@ -20,14 +20,14 @@ from
                 l_extendedprice * (1 - l_discount) as volume,
                 n2.n_name as nation
         from
-               tpch10g.part,
-               tpch10g.supplier,
-               tpch10g.lineitem_scramble,
-               tpch10g.orders_scramble,
-               tpch10g.customer,
-               tpch10g.nation n1,
-               tpch10g.nation n2,
-               tpch10g.region
+               tpch{}g.part,
+               tpch{}g.supplier,
+               tpch{}g.lineitem_scramble,
+               tpch{}g.orders_scramble,
+               tpch{}g.customer,
+               tpch{}g.nation n1,
+               tpch{}g.nation n2,
+               tpch{}g.region
         where
                p_partkey = l_partkey
                and s_suppkey = l_suppkey
@@ -43,7 +43,7 @@ from
 group by
         o_year
 order by
-        o_year;"""
+        o_year;""".format(sz, sz, sz, sz, sz, sz, sz, sz)
 
 
 start_time = time.time()
@@ -69,14 +69,14 @@ from
                 l_extendedprice * (1 - l_discount) as volume,
                 n2.n_name as nation
         from
-               tpch10g.part,
-               tpch10g.supplier,
-               tpch10g.lineitem,
-               tpch10g.orders,
-               tpch10g.customer,
-               tpch10g.nation n1,
-               tpch10g.nation n2,
-               tpch10g.region
+               tpch{}g.part,
+               tpch{}g.supplier,
+               tpch{}g.lineitem,
+               tpch{}g.orders,
+               tpch{}g.customer,
+               tpch{}g.nation n1,
+               tpch{}g.nation n2,
+               tpch{}g.region
         where
                p_partkey = l_partkey
                and s_suppkey = l_suppkey
@@ -92,7 +92,7 @@ from
 group by
         o_year
 order by
-        o_year;"""
+        o_year;""".format(sz, sz, sz, sz, sz, sz, sz, sz)
 
 start_time = time.time()
 verdict.sql(query)

@@ -3,19 +3,19 @@ import time
 import sys
 
 filename = sys.argv[1]
-
+sz = sys.argv[2]
 verdict = pyverdict.presto('localhost', 'hive', 'jiangchen', port=9080)
 # verdict.sql('use tpch10g')
 query = """select
         l_suppkey,
         sum(l_extendedprice * (1 - l_discount))
 from
-        tpch10g.lineitem_scramble
+        tpch{}g.lineitem_scramble
         where
         l_shipdate >= date '1995-01-01'
         and l_shipdate < date '1996-01-01'
 group by
-        l_suppkey;"""
+        l_suppkey;""".format(sz)
 
 start_time = time.time()
 verdict.sql(query)
@@ -30,12 +30,12 @@ query = """bypass select
         l_suppkey,
         sum(l_extendedprice * (1 - l_discount))
 from
-        tpch10g.lineitem
+        tpch{}g.lineitem
         where
         l_shipdate >= date '1995-01-01'
         and l_shipdate < date '1996-01-01'
 group by
-        l_suppkey;"""
+        l_suppkey;""".format(sz)
 
 start_time = time.time()
 verdict.sql(query)

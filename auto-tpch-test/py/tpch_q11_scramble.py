@@ -3,16 +3,16 @@ import time
 import sys
 
 filename = sys.argv[1]
-
+sz = sys.argv[2]
 verdict = pyverdict.presto('localhost', 'hive', 'jiangchen', port=9080)
 # verdict.sql('use tpch10g')
 query = """select
   ps_partkey,
   sum(ps_supplycost * ps_availqty) as value
 from
-  tpch10g.partsupp,
-  tpch10g.supplier,
-  tpch10g.nation
+  tpch{}g.partsupp,
+  tpch{}g.supplier,
+  tpch{}g.nation
 where
   ps_suppkey = s_suppkey
   and s_nationkey = n_nationkey
@@ -21,7 +21,7 @@ group by
   ps_partkey having
     sum(ps_supplycost * ps_availqty) > 10
 order by
-  value desc;"""
+  value desc;""".format(sz, sz, sz)
 
 start_time = time.time()
 verdict.sql(query)
@@ -36,9 +36,9 @@ query = """bypass select
   ps_partkey,
   sum(ps_supplycost * ps_availqty) as value
 from
-  tpch10g.partsupp,
-  tpch10g.supplier,
-  tpch10g.nation
+  tpch{}g.partsupp,
+  tpch{}g.supplier,
+  tpch{}g.nation
 where
   ps_suppkey = s_suppkey
   and s_nationkey = n_nationkey
@@ -47,7 +47,7 @@ group by
   ps_partkey having
     sum(ps_supplycost * ps_availqty) > 10
 order by
-  value desc;"""
+  value desc;""".format(sz, sz, sz)
 
 start_time = time.time()
 verdict.sql(query)

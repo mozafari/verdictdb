@@ -3,7 +3,7 @@ import time
 import sys
 
 filename = sys.argv[1]
-
+sz = sys.argv[2]
 verdict = pyverdict.presto('localhost', 'hive', 'jiangchen', port=9080)
 # verdict.sql('use tpch10g')
 query = """select
@@ -12,8 +12,8 @@ query = """select
   p_size,
   count(distinct ps_suppkey) as supplier_cnt
 from
-  tpch10g.partsupp,
-  tpch10g.part
+  tpch{}g.partsupp,
+  tpch{}g.part
 where
   p_partkey = ps_partkey
   and p_brand <> 'Brand#34'
@@ -23,7 +23,7 @@ where
     select
       s_suppkey
     from
-      tpch10g.supplier
+      tpch{}g.supplier
     where
       s_comment like '%Customer%Complaints%'
   )
@@ -35,7 +35,7 @@ order by
   supplier_cnt desc,
   p_brand,
   p_type,
-  p_size;"""
+  p_size;""".format(sz, sz, sz)
 
 start_time = time.time()
 verdict.sql(query)
@@ -52,8 +52,8 @@ query = """bypass select
   p_size,
   count(distinct ps_suppkey) as supplier_cnt
 from
-  tpch10g.partsupp,
-  tpch10g.part
+  tpch{}g.partsupp,
+  tpch{}g.part
 where
   p_partkey = ps_partkey
   and p_brand <> 'Brand#34'
@@ -63,7 +63,7 @@ where
     select
       s_suppkey
     from
-      tpch10g.supplier
+      tpch{}g.supplier
     where
       s_comment like '%Customer%Complaints%'
   )
@@ -75,7 +75,7 @@ order by
   supplier_cnt desc,
   p_brand,
   p_type,
-  p_size;"""
+  p_size;""".format(sz, sz, sz)
 
 start_time = time.time()
 verdict.sql(query)

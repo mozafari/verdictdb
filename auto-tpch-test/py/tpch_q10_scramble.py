@@ -3,7 +3,7 @@ import time
 import sys
 
 filename = sys.argv[1]
-
+sz = sys.argv[2]
 verdict = pyverdict.presto('localhost', 'hive', 'jiangchen', port=9080)
 # verdict.sql('use tpch10g')
 query = """select
@@ -16,10 +16,10 @@ query = """select
         c_phone,
         c_comment
 from
-        tpch10g.customer,
-        tpch10g.orders_scramble,
-        tpch10g.lineitem_scramble,
-        tpch10g.nation
+        tpch{}g.customer,
+        tpch{}g.orders_scramble,
+        tpch{}g.lineitem_scramble,
+        tpch{}g.nation
 where
         c_custkey = o_custkey
         and l_orderkey = o_orderkey
@@ -37,7 +37,7 @@ group by
         c_comment
 order by
         revenue desc
-limit 20;"""
+limit 20;""".format(sz, sz, sz, sz)
 
 
 start_time = time.time()
@@ -59,10 +59,10 @@ query = """bypass select
         c_phone,
         c_comment
 from
-        tpch10g.customer,
-        tpch10g.orders,
-        tpch10g.lineitem,
-        tpch10g.nation
+        tpch{}g.customer,
+        tpch{}g.orders,
+        tpch{}g.lineitem,
+        tpch{}g.nation
 where
         c_custkey = o_custkey
         and l_orderkey = o_orderkey
@@ -80,7 +80,7 @@ group by
         c_comment
 order by
         revenue desc
-limit 20;"""
+limit 20;""".format(sz, sz, sz, sz)
 
 start_time = time.time()
 verdict.sql(query)

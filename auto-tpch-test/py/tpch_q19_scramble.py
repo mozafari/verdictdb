@@ -3,14 +3,14 @@ import time
 import sys
 
 filename = sys.argv[1]
-
+sz = sys.argv[2]
 verdict = pyverdict.presto('localhost', 'hive', 'jiangchen', port=9080)
 # verdict.sql('use tpch10g')
 query = """select
        sum(l_extendedprice* (1 - l_discount)) as revenue
 from
-       tpch10g.lineitem_scramble,
-       tpch10g.part
+       tpch{}g.lineitem_scramble,
+       tpch{}g.part
 where
        (
        p_partkey = l_partkey
@@ -40,7 +40,7 @@ where
       and p_size between 1 and 15
       and l_shipmode in ('AIR', 'AIR REG')
       and l_shipinstruct = 'DELIVER IN PERSON'
-     );"""
+     );""".format(sz, sz)
 
 start_time = time.time()
 verdict.sql(query)
@@ -54,8 +54,8 @@ f.write("19 " + str(end_time - start_time) + " ")
 query = """bypass select
        sum(l_extendedprice* (1 - l_discount)) as revenue
 from
-       tpch10g.lineitem,
-       tpch10g.part
+       tpch{}g.lineitem,
+       tpch{}g.part
 where
        (
        p_partkey = l_partkey
@@ -85,7 +85,7 @@ where
       and p_size between 1 and 15
       and l_shipmode in ('AIR', 'AIR REG')
       and l_shipinstruct = 'DELIVER IN PERSON'
-     );"""
+     );""".format(sz, sz)
 
 start_time = time.time()
 verdict.sql(query)
