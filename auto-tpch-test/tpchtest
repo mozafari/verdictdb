@@ -1,0 +1,42 @@
+#!/bin/bash
+# tpchtest
+
+# Stop on errors
+# set -e
+
+# Sanity check command line options
+usage() {
+  printf "Note: you need to rebuild the pyverdict package (if some change is made to verdictdb) because it is used as the interface here \nUsage: $0 [presto] [filename] [size]\n"
+}
+
+if [ $# -ne 3 ]; then
+  usage
+  exit 1
+fi
+
+# Parse argument.  $1 is the first argument
+case $1 in
+  "presto")
+    # set -x
+    # remove already existed file
+    if [ -f $2 ]; then
+      rm $2
+    fi
+
+    # $2 is the output file, $3 is the size of tpch
+    make_scrmable="python py/make_scrmable.py $3"
+    for i in `seq 1 6`;
+    do
+      echo "==================================================================="
+      echo "Running Test #$i"
+      scramble="_scramble.py"
+      test_scramble="python py/tpch_q$i$scramble $2 $3"
+      eval $test_scramble
+    done
+    ;;
+
+  *)
+    usage
+    exit 1
+    ;;
+esac
