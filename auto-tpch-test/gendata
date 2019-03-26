@@ -13,12 +13,12 @@ if [ $# -ne 1 ]; then
 fi
 
 # compile dbgen
-cd 2.18.0_rc2/dbgen/
-make clean
-make
-cd ../../
+# cd 2.18.0_rc2/dbgen/
+# make clean
+# make
+# cd ../../
 
-# put the data to hdfs directory
+# will put the data to hdfs directory
 # /tmp/tpch<size>g/
 # first clear this directory on hdfs
 # and drop the db on hive
