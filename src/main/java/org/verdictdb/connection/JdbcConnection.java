@@ -87,13 +87,20 @@ public class JdbcConnection extends DbmsConnection {
 
   public static JdbcConnection create(Connection conn) throws VerdictDBDbmsException {
     String connectionString = null;
+    SqlSyntax syntax = null;
+
     try {
-      connectionString = conn.getMetaData().getURL();
+      if (conn.getClass().getName() == "org.apache.hive.jdbc.HiveConnection") {
+        syntax = SqlSyntaxList.getSyntaxFor("Hive2");
+      } else {
+        connectionString = conn.getMetaData().getURL();
+
+        syntax = SqlSyntaxList.getSyntaxFromConnectionString(connectionString);
+      }
     } catch (SQLException e) {
       throw new VerdictDBDbmsException(e);
     }
 
-    SqlSyntax syntax = SqlSyntaxList.getSyntaxFromConnectionString(connectionString);
     JdbcConnection jdbcConn = null;
     if (syntax instanceof PrestoSyntax) {
       // To handle that Presto's JDBC driver is not compatible with JDK7,

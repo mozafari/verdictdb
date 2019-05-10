@@ -28,7 +28,7 @@ public class SqlSyntaxList {
   static {
     nameToSyntax.put("Impala", new ImpalaSyntax());
     nameToSyntax.put("H2", new H2Syntax());
-    nameToSyntax.put("Hive", new HiveSyntax());
+    nameToSyntax.put("Hive2", new HiveSyntax());
     nameToSyntax.put("Presto", new PrestoHiveSyntax()); // uses Hive only for now.
     nameToSyntax.put("MySQL", new MysqlSyntax());
     nameToSyntax.put("PostgreSQL", new PostgresqlSyntax());
