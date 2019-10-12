@@ -163,7 +163,7 @@ public class ExecutionContext {
 
     if (queryType.equals(QueryType.select)) {
       log.debug("Query type: select");
-      return sqlSelectQuery(query, getResult);
+      return sqlSelectQuery(query, getResult, false);
     }
 
     // for other types of queries, we invalidate cached metadata for expected data
@@ -317,16 +317,23 @@ public class ExecutionContext {
     }
   }
 
-  private VerdictSingleResult sqlSelectQuery(String query, boolean getResult)
+  private VerdictSingleResult sqlSelectQuery(
+      String query, boolean getResult, boolean runOriginalQuery
+  )
       throws VerdictDBException {
     SelectQuery selectQuery = standardizeQuery(query);
-    VerdictResultStream stream = streamSelectQuery(selectQuery);
+    VerdictResultStream stream = streamSelectQuery(selectQuery, runOriginalQuery);
 
     if (stream == null) {
       return null;
     }
     QueryResultAccuracyEstimator accEst =
-        new QueryResultAccuracyEstimatorFromDifference(selectQuery);
+      new QueryResultAccuracyEstimatorFromDifference(selectQuery);
+
+    ShouldProcessWithOriginalDecider runWithOrigDecider = 
+      new ShouldProcessWithOriginalDecider(selectQuery, metaStore.retrieve());
+
+    boolean haveCleanedUp = false;
 
     try {
       while (stream.hasNext()) {
@@ -335,14 +342,24 @@ public class ExecutionContext {
         if (accEst.isLastResultAccurate()) {
           return rs;
         }
+        if (runWithOrigDecider.shouldRunOriginal(rs)) {
+          stream.close();
+          abort();
+
+          haveCleanedUp = true;
+
+          return sqlSelectQuery(query, getResult, true);
+        }
       }
       // return the last result otherwise
       return accEst.getAnswers().get(accEst.getAnswerCount() - 1);
     } catch (RuntimeException e) {
       throw e;
     } finally {
-      stream.close();
-      abort();
+      if (!haveCleanedUp) {
+        stream.close();
+        abort();
+      }
     }
 
     //    SelectQuery selectQuery = standardizeQuery(query);
@@ -380,7 +397,7 @@ public class ExecutionContext {
     }
 
     SelectQuery selectQuery = standardizeQuery(query);
-    return streamSelectQuery(selectQuery);
+    return streamSelectQuery(selectQuery, false);
   }
 
   /**
@@ -390,14 +407,18 @@ public class ExecutionContext {
    * @return
    * @throws VerdictDBException
    */
-  private VerdictResultStream streamSelectQuery(SelectQuery selectQuery) throws VerdictDBException {
+  private VerdictResultStream streamSelectQuery(
+    SelectQuery selectQuery, boolean runOriginalQuery
+  ) throws VerdictDBException {
     //    selectQuery = standardizeSelectQuery(selectQuery, conn);
 
     ScrambleMetaSet metaset = metaStore.retrieve();
     SelectQueryCoordinator coordinator = new SelectQueryCoordinator(conn, metaset, options);
     runningCoordinator = null;
 
-    ExecutionResultReader reader = coordinator.process(selectQuery, queryContext);
+    ExecutionResultReader reader = coordinator.process(
+      selectQuery, queryContext, runOriginalQuery
+    );
     if (coordinator.getLastQuery() != null) {
       // this means there are scrambles for the query so that
       // we need to abort the coordinator at the end.

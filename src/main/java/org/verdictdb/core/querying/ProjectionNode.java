@@ -17,9 +17,12 @@
 package org.verdictdb.core.querying;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import org.verdictdb.connection.DbmsQueryResult;
 import org.verdictdb.core.execplan.ExecutionInfoToken;
+import org.verdictdb.core.querying.ola.AggMeta;
+import org.verdictdb.core.querying.ola.HyperTableCube;
 import org.verdictdb.core.sqlobject.SelectQuery;
 import org.verdictdb.core.sqlobject.SqlConvertible;
 import org.verdictdb.exception.VerdictDBException;
@@ -27,6 +30,8 @@ import org.verdictdb.exception.VerdictDBException;
 public class ProjectionNode extends CreateTableAsSelectNode {
 
   private static final long serialVersionUID = 3168447303333633662L;
+
+  protected List<HyperTableCube> coveredCubes = new ArrayList<>();
 
   public ProjectionNode(IdCreator namer, SelectQuery query) {
     super(namer, query);
@@ -41,12 +46,25 @@ public class ProjectionNode extends CreateTableAsSelectNode {
 
   @Override
   public SqlConvertible createQuery(List<ExecutionInfoToken> tokens) throws VerdictDBException {
+    if (!tokens.isEmpty()) {
+      ExecutionInfoToken token = tokens.get(0);
+      if (token.containsKey("aggMeta")) {
+        coveredCubes.addAll(((AggMeta) token.getValue("aggMeta")).getCubes());
+      } else if (token.containsKey("coveredCubes")) {
+        coveredCubes.addAll((List<HyperTableCube>) token.getValue("coveredCubes"));
+      }
+    }
+
     return super.createQuery(tokens);
   }
 
   @Override
   public ExecutionInfoToken createToken(DbmsQueryResult result) {
-    return super.createToken(result);
+    ExecutionInfoToken token = super.createToken(result);
+
+    token.setKeyValue("coveredCubes", coveredCubes);
+
+    return token;
   }
 
   @Override

@@ -168,7 +168,7 @@ ddl_clause
 
 // https://msdn.microsoft.com/en-us/library/ms189499.aspx
 select_statement
-    : with_expression? EXACT? query_expression order_by_clause? limit_clause? ';'?
+    : with_expression? EXACT? query_expression order_by_clause? limit_clause? use_original_after_clause? ';'?
     ;
 
 stream_select_statement
@@ -426,6 +426,9 @@ limit_clause
     : LIMIT number
     ;
 
+use_original_after_clause
+    : USE_ORIGINAL_AFTER number
+    ;
 
 // https://msdn.microsoft.com/en-us/library/ms188385.aspx
 order_by_clause

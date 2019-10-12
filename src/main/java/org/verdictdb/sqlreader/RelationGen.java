@@ -69,6 +69,15 @@ public class RelationGen extends VerdictSQLParserBaseVisitor<AbstractRelation> {
     if (ctx.limit_clause() != null) {
       sel.addLimit(ConstantColumn.valueOf(ctx.limit_clause().number().getText()));
     }
+
+    if (ctx.use_original_after_clause() != null) {
+      String useOrigAfterVal = ctx.use_original_after_clause().number().getText();
+      
+      sel.addUseOriginalAfter(
+        ConstantColumn.valueOf(Float.parseFloat(useOrigAfterVal))
+      );
+    }
+    
     return sel;
   }
 

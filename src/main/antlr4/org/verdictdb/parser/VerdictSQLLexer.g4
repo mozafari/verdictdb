@@ -215,6 +215,7 @@ UPDATE:                          U P D A T E;
 UPDATETEXT:                      U P D A T E T E X T;
 USE:                             U S E;
 USER:                            U S E R;
+USE_ORIGINAL_AFTER:              U S E '_' O R I G I N A L '_' A F T E R;
 VALUES:                          V A L U E S;
 VARYING:                         V A R Y I N G;
 VIEW:                            V I E W;

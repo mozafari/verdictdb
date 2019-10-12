@@ -112,11 +112,19 @@ public class SelectQueryCoordinator implements Coordinator {
    * The input is assumed to have been standardized.
    */
   public ExecutionResultReader process(SelectQuery selectQuery) throws VerdictDBException {
-    return process(selectQuery, null);
+    return process(selectQuery, null, false);
   }
 
-  public ExecutionResultReader process(SelectQuery selectQuery, QueryContext context)
-      throws VerdictDBException {
+  public ExecutionResultReader process(
+    SelectQuery selectQuery, QueryContext context, boolean useOriginalQuery
+  ) throws VerdictDBException {
+    if (useOriginalQuery) {
+      log.info(
+        "Passed USE_ORIGINAL_AFTER threshold -- running raw original query"
+      );
+
+      return startOriginalQuery(selectQuery);
+    }
 
     // create scratchpad schema if not exists
     if (!conn.getSchemas().contains(scratchpadSchema)) {
@@ -135,12 +143,7 @@ public class SelectQueryCoordinator implements Coordinator {
     if (fasterQuery == null) {
       // this means there are no scrambles available, we should run it as-is
       log.debug("No scrambles available for the query. We will execute it as-is.");
-      ExecutionInfoToken token = ExecutionInfoToken.empty();
-      ExecutionTokenQueue queue = new ExecutionTokenQueue();
-      token.setKeyValue("queryResult", conn.execute(selectQuery));
-      queue.add(token);
-      queue.add(ExecutionInfoToken.successToken());
-      return new ExecutionResultReader(queue);
+      return startOriginalQuery(selectQuery);
     }
 
     // make plan
@@ -168,6 +171,15 @@ public class SelectQueryCoordinator implements Coordinator {
     lastQuery = fasterQuery;
 
     return reader;
+  }
+
+  private ExecutionResultReader startOriginalQuery(SelectQuery selectQuery) throws VerdictDBException {
+    ExecutionInfoToken token = ExecutionInfoToken.empty();
+    ExecutionTokenQueue queue = new ExecutionTokenQueue();
+    token.setKeyValue("queryResult", conn.execute(selectQuery));
+    queue.add(token);
+    queue.add(ExecutionInfoToken.successToken());
+    return new ExecutionResultReader(queue);
   }
 
   @Override

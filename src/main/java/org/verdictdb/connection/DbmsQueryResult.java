@@ -32,6 +32,8 @@ import java.sql.SQLXML;
 import java.sql.Time;
 import java.sql.Timestamp;
 
+import org.verdictdb.core.querying.ola.HyperTableCube;
+
 /**
  * Represents the results returned from the underlying database.
  *
